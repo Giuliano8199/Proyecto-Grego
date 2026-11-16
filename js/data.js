@@ -402,27 +402,66 @@ const shirt = (a, b = a) => ({ pattern: 'solid', a, b, n: a });
 export const FAMILY = [
   {
     id: 'mama', name: 'Cecilia', role: 'Mamá', age: 49, icon: '👩',
-    look: { jersey: { pattern: 'vneck', a: '#f8f9fa', b: '#f8f9fa', n: '#f8f9fa' }, hair: { style: 'coleta', c: '#e9c46a', d: '#c9a227', l: '#f6e7a1' }, shorts: '#8d8d8d', socks: '#f4cdb0', boots: { c: '#e9ecef' }, eye: '#4a7c8c', chain: true, head: 'none' },
-    action: 'Charlar con mamá', actionDesc: 'Un rato de charla con Cecilia', tag: '+vida · +espíritu',
-    reward: { aura: 80, hp: 25, stats: { esp: 4 } }, gift: 'mate',
+    look: { jersey: { pattern: 'vneck', a: '#f8f9fa', b: '#f8f9fa', n: '#f8f9fa' }, hair: { style: 'coleta', c: '#e6e2d8', d: '#b9b2a4', l: '#ffffff' }, shorts: '#8d8d8d', socks: '#f4cdb0', boots: { c: '#e9ecef' }, eye: '#4a7c8c', chain: true, head: 'none' },
+    action: 'Charlar con mamá', actionDesc: 'Un rato con Cecilia te cura el alma', tag: '+vida · +espíritu',
+    reward: { aura: 80, hp: 40, stats: { esp: 4 } }, gift: 'mate',
     lines: ['¿Comiste algo, Giuli?', '¿Cómo te fue hoy, mi amor?', 'Estoy muy orgullosa de vos.', 'Ordená el cuarto, ¿sí? 😅', 'Abrigate que a la noche refresca.', 'Acordate de tomar agua.', 'Te hice algo rico, está en la heladera.'],
   },
   {
     id: 'papa', name: 'Marco', role: 'Papá', age: 48, icon: '👨',
     look: { jersey: { pattern: 'rose', a: '#55575c', b: '#c1121f', n: '#55575c', c: '#e9ecef' }, hair: { style: 'corto', c: '#7a5a3c', d: '#5a412b' }, shorts: '#2b2d33', socks: '#2b2d33', boots: { c: '#e9ecef' }, eye: '#5d8aa8', beard: '#b08a6a', chain: true, head: 'gorraVerde' },
-    action: 'Charla con papá', actionDesc: 'Consejos de Marco', tag: '+oro · +disciplina',
-    reward: { aura: 80, gold: 20, stats: { dis: 4, car: 2 } },
+    action: 'Café con papá', actionDesc: 'Un café y una charla con Marco', tag: '+vida · +oro',
+    reward: { aura: 80, gold: 20, hp: 25, stats: { dis: 4, car: 2 } },
     lines: ['¿Cómo viene el físico? En febrero arranca todo.', 'Un medio scrum piensa antes que nadie.', 'Los laburos se cobran a tiempo, eh.', 'La constancia le gana al talento.', 'Cuando quieras vamos a ver un partido.', 'Si te comprometés con algo, cumplilo.', 'Bien ahí, Giuli. Seguí así.'],
   },
   {
-    id: 'tommy', name: 'Tommy', role: 'Hermano', age: 27, icon: '🤍',
-    look: { jersey: { pattern: 'print', a: '#f8f9fa', b: '#2f6690', n: '#f8f9fa', c: '#9fb3c8' }, hair: { style: 'corto', c: '#6b4a2e', d: '#4a321e' }, shorts: '#3a3f4b', socks: '#f4cdb0', boots: { c: '#e9ecef' }, eye: '#5fa8d3', beard: '#8a6a4c', head: 'none', big: true },
+    id: 'tomi', name: 'Tomi', role: 'Hermano', age: 27, icon: '🤍',
+    look: { jersey: { pattern: 'print', a: '#f8f9fa', b: '#2f6690', n: '#f8f9fa', c: '#9fb3c8' }, hair: { style: 'corto', c: '#1f1712', d: '#0d0907', l: '#2e231b' }, shorts: '#3a3f4b', socks: '#f4cdb0', boots: { c: '#e9ecef' }, eye: '#6fb3d9', beard: '#2b211a', head: 'none', big: true, tall: 1.25 },
   },
   {
     id: 'feli', name: 'Feli', role: 'Hermano', age: 11, icon: '🧒', small: true,
     look: { jersey: { pattern: 'solid', a: '#e9ecef', b: '#ced4da', n: '#e9ecef' }, hair: { style: 'flequillo', c: '#3b2a1e', d: '#241a12' }, shorts: '#6c757d', socks: '#f4cdb0', boots: { c: '#3a86ff' }, eye: '#4a5a6c', head: 'none' },
-    action: 'Jugar con Feli', actionDesc: 'Pelota en el patio con tu hermanito', tag: '+aura · +carisma',
-    reward: { aura: 150, stats: { car: 4, esp: 2 } }, gift: 'alfajor',
+    action: 'Jugar con Feli', actionDesc: 'Pelota en el patio con tu hermanito', tag: '+vida · +aura',
+    reward: { aura: 150, hp: 25, stats: { car: 4, esp: 2 } }, gift: 'alfajor',
     lines: ['¡Giuli! ¿Me enseñás a patear a los palos?', 'Te gané a la play, admitilo.', '¿Jugamos un rato en el patio?', 'Cuando sea grande voy a ser medio scrum como vos.', '¿Me llevás al club el sábado?', '¿Me pasás un tackle? Despacito.'],
   },
+];
+
+// ---------------- COMPAÑEROS DEL CLUB ----------------
+// Ropa de entrenamiento: algunos con la camiseta de la U, otros con otras.
+const U = { pattern: 'quarters', a: '#e53935', b: '#ffffff', n: '#1b1b1b' };
+const tee = (a, b = a) => ({ pattern: 'solid', a, b, n: a });
+const hoops = (a, b) => ({ pattern: 'hoops', a, b, n: '#ffffff' });
+const hair = (style, c, d) => ({ style, c, d });
+export const TEAMMATES = [
+  { id: 'tizot', name: 'Mateo Tizot', look: { jersey: U, hair: hair('corto', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#e53935', boots: { c: '#1b1b1b' } } },
+  { id: 'mano', name: 'Mano', look: { jersey: tee('#2b2d42'), hair: hair('rapado', '#1b1b1b', '#000'), shorts: '#1b1b1b', socks: '#2b2d42', boots: { c: '#e9ecef' }, skin: '#e0b090', skinD: '#b8866a' } },
+  { id: 'ponce', name: 'Jero Ponce', look: { jersey: U, hair: hair('flequillo', '#6b4226', '#4a2c17'), shorts: '#f1f3f5', socks: '#e53935', boots: { c: '#e63946' } } },
+  { id: 'canolo', name: 'Genaro Cañolo', look: { jersey: tee('#6c757d'), hair: hair('largo', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#6c757d', boots: { c: '#1b1b1b' } } },
+  { id: 'valendepa', name: 'Valendepa', look: { jersey: hoops('#2d6a4f', '#ffffff'), hair: hair('corto', '#8a6a3c', '#5e4527'), shorts: '#1b1b1b', socks: '#2d6a4f', boots: { c: '#b5e48c' } } },
+  { id: 'mosquito', name: 'Mosquito', look: { jersey: U, hair: hair('mohicano', '#1b1b1b', '#000'), shorts: '#1b1b1b', socks: '#e53935', boots: { c: '#ffd60a' } } },
+  { id: 'cava', name: 'Gordo Cava', look: { jersey: tee('#1b1b1b'), hair: hair('rapado', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#1b1b1b', boots: { c: '#1b1b1b' }, beard: '#3b2a1e' } },
+  { id: 'augusto', name: 'Augusto', look: { jersey: hoops('#1d3557', '#a8dadc'), hair: hair('corto', '#c9a227', '#9e7e1c'), shorts: '#f1f3f5', socks: '#1d3557', boots: { c: '#1b1b1b' } } },
+  { id: 'molina', name: 'Molina', look: { jersey: U, hair: hair('corto', '#1b1b1b', '#000'), shorts: '#f1f3f5', socks: '#e53935', boots: { c: '#1b1b1b' }, skin: '#d9a87e', skinD: '#b8866a' } },
+  { id: 'rocha', name: 'Rocha', look: { jersey: tee('#e9ecef', '#ced4da'), hair: hair('flequillo', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#e9ecef', boots: { c: '#3a86ff' } } },
+  { id: 'calvo', name: 'Calvo', look: { jersey: hoops('#6a040f', '#ffba08'), hair: hair('rapado', '#6b4226', '#4a2c17'), shorts: '#1b1b1b', socks: '#6a040f', boots: { c: '#1b1b1b' } } },
+  { id: 'justo', name: 'Justo', look: { jersey: U, hair: hair('largo', '#8a6a3c', '#5e4527'), shorts: '#1b1b1b', socks: '#e53935', boots: { c: '#e9ecef' } } },
+];
+
+// Temas de charla con los chicos del club
+export const TALK_TOPICS = [
+  { id: 'egresados', icon: '🎓', name: 'Egresados', lines: ['¿Ya tenés el buzo de egresados? El mío llega la semana que viene.', 'El viaje de egresados va a ser una locura, hermano.', '¿Quién arma la previa para la fiesta de egresados?', 'Hay que juntar plata para el viaje, ¿vendemos algo?', 'Último mes de cole, a disfrutarlo a full.'] },
+  { id: 'partido', icon: '🏉', name: 'El próximo partido', lines: ['Este año la rompemos, la U vuelve a lo más alto.', 'Hay que trabajar las salidas del ruck, Giuli. Vos sos clave.', 'El line nos viene costando, hay que practicar las llamadas.', 'Si llegamos bien físicamente en febrero, no nos para nadie.', 'Vos pasala rápido que yo la rompo por afuera.'] },
+  { id: 'entreno', icon: '💪', name: 'Entrenamiento', lines: ['¿Vamos al gym después del entreno?', 'Hoy hay pasadas, prepará los pulmones.', 'Me duele todo de las sentadillas de ayer.', 'Hay que meterle a la pretemporada, nada de aflojar en vacaciones.', '¿Hacemos patadas a los palos después?'] },
+  { id: 'tercer', icon: '🍻', name: 'Tercer tiempo / joda', lines: ['¿Qué onda el finde? ¿Salimos?', 'El tercer tiempo del sábado fue épico.', 'Hay asado en lo de alguno el viernes, sumate.', '¿Vas a la fiesta del club?', 'Esta vez la previa en tu casa, Giuli 😂'] },
+  { id: 'vida', icon: '💬', name: 'Cómo andás', lines: ['Todo bien, hermano. ¿Vos cómo andás?', 'Bien, metiéndole al estudio y al laburo.', 'Cualquier cosa que necesites, avisá. Para eso estamos.', 'Che, me alegra verte con tanta energía.', 'Se te ve más fuerte, eh. Se nota el gym.'] },
+];
+
+// Rivales (nombres inventados)
+export const RIVALS = [
+  { name: 'Halcones RC', short: 'HAL', a: '#1d3557', b: '#ffd60a', shorts: '#1d3557' },
+  { name: 'Toros del Norte', short: 'TOR', a: '#2d6a4f', b: '#ffffff', shorts: '#1b1b1b' },
+  { name: 'Cóndores', short: 'CON', a: '#3a0ca3', b: '#f72585', shorts: '#14213d' },
+  { name: 'Pumas de la Sierra', short: 'PUM', a: '#0077b6', b: '#caf0f8', shorts: '#023e8a' },
+  { name: 'Lobos RC', short: 'LOB', a: '#212529', b: '#adb5bd', shorts: '#212529' },
 ];

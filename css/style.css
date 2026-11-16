@@ -302,10 +302,44 @@ h3 { font-size: 14px; color: var(--muted); margin-top: 14px; }
 .talk-head canvas { width: 72px; height: 99px; background: radial-gradient(circle, #3a4478, transparent 70%); border-radius: 12px; }
 .bubble { position: relative; background: #f8f9fa; color: #1b1b1b; border-radius: 14px; padding: 12px 14px; margin: 12px 0; font-size: 15px; font-weight: 600; box-shadow: 0 3px 0 #0006; }
 .bubble.soft { background: #efe7ff; text-align: center; font-weight: 500; }
-.tommy-scene { border-radius: 14px; overflow: hidden; border: 2px solid #0a0c18; margin-bottom: 10px; }
-.tommy-scene canvas { display: block; width: 100%; height: auto; }
+.tomi-scene { border-radius: 14px; overflow: hidden; border: 2px solid #0a0c18; margin-bottom: 10px; }
+.tomi-scene canvas { display: block; width: 100%; height: auto; }
 .mbox textarea { width: 100%; font: inherit; color: var(--text); background: #0d1020; border: 2px solid var(--line); border-radius: 10px; padding: 10px; resize: vertical; margin: 8px 0; }
 .notes { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; max-height: 45dvh; overflow-y: auto; }
 .note { background: #0d1020; border-radius: 12px; padding: 10px; border: 1px solid var(--line); }
 .note small { color: var(--muted); }
 .note p { margin: 6px 0; white-space: normal; }
+
+/* ---------- partido ---------- */
+#match { position: fixed; inset: 0; z-index: 40; background: #000; overflow: hidden; }
+#match[hidden] { display: none; }
+body.in-match { overflow: hidden; }
+.mx { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+.mx canvas { position: absolute; inset: 0; }
+.mx-top { position: absolute; top: 8px; right: 10px; }
+.mjoy { position: absolute; left: 22px; bottom: 22px; width: 120px; height: 120px; border-radius: 50%; background: #0006; border: 3px solid #fff4; touch-action: none; }
+.mjoy > div { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: #fff9; border: 3px solid #fffb; }
+.mbtns { position: absolute; right: 16px; bottom: 16px; display: grid; grid-template-columns: repeat(2, 74px); gap: 8px; }
+.mb { width: 74px; height: 58px; border-radius: 16px; border: 2px solid #0a0c18; font-family: var(--pix); font-size: 9px; line-height: 1.5; color: #fff; box-shadow: inset 0 2px 0 #fff3, 0 4px 0 #0a0c18; touch-action: none; opacity: .92; }
+.mb.on { transform: translateY(3px); box-shadow: inset 0 2px 0 #fff3, 0 1px 0 #0a0c18; filter: brightness(1.2); }
+.mb.pass { background: linear-gradient(180deg, #4cc9f0, #277da1); }
+.mb.kick { background: linear-gradient(180deg, #ffd166, #e09f3e); color: #2b1d00; }
+.mb.step { background: linear-gradient(180deg, #9d4edd, #5a189a); }
+.mb.tackle { background: linear-gradient(180deg, #ff5a67, #c1121f); grid-column: span 2; width: 156px; height: 70px; font-size: 12px; }
+.mb.switch { background: linear-gradient(180deg, #6c757d, #343a40); grid-column: span 2; width: 156px; height: 44px; }
+.mbtns.att .tackle, .mbtns.att .switch { display: none; }
+.mbtns.def .pass, .mbtns.def .kick, .mbtns.def .step { display: none; }
+.mpanel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #14182bf2; border: 3px solid var(--gold); border-radius: 16px; padding: 14px 18px; text-align: center; min-width: 300px; max-width: 90%; }
+.mpanel[hidden] { display: none; }
+.mp-t { font-family: var(--pix); font-size: 13px; color: var(--gold); margin-bottom: 8px; line-height: 1.5; }
+.mp-s { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.mp-score { font-family: var(--pix); font-size: 18px; margin: 8px 0 12px; }
+.mp-rew { color: var(--aura); font-weight: 800; margin: 8px 0; }
+.mp-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.mp-row .btn { flex: 1; min-width: 90px; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.howto { background: #0d1020; border-radius: 12px; padding: 10px 12px; margin: 10px 0; font-size: 13px; }
+.howto ul { margin: 6px 0; padding-left: 18px; }
+.howto li { margin: 4px 0; }
+.howto small { color: var(--muted); }

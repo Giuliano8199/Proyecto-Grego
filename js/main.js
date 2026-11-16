@@ -4,12 +4,13 @@
 import * as St from './state.js';
 import { S } from './state.js';
 import { crest, optBtn, ui, render, renderNav, renderTop, setGoTab, modal, closeModal, toast, onGains, onLevelUp, onAchievement, onAuraRank } from './ui.js';
-import { initWorld, startWorld, stopWorld, resizeWorld, bindJoystick, removeMonster, worldSay, teleportHome } from './world.js';
+import { initWorld, startWorld, stopWorld, resizeWorld, bindJoystick, removeMonster, worldSay, teleportHome, sceneId } from './world.js';
+import { startMatch } from './match.js';
 import { startBattle } from './battle.js';
 import { openHouse } from './family.js';
-import { kicks, tryRun, mash, trivia } from './minigames.js';
+import { kicks, tryRun, mash, trivia, timingGame, holdGame, altGame, rhythmGame, ropeGame, curlGame, passDrill, lineDrill, tackleDrill } from './minigames.js';
 import { initAudio, playMusic, refreshAudio, sfx } from './audio.js';
-import { MONSTERS, DOG_LINES, PLAYER } from './data.js';
+import { MONSTERS, DOG_LINES, PLAYER, TALK_TOPICS, COACH_TIPS } from './data.js';
 import { $, dayKey, pick, fmt } from './util.js';
 
 St.load();
@@ -33,7 +34,7 @@ function goTab(t) {
   if (world) {
     renderTop();
     startWorld();
-    playMusic('world');
+    playMusic(sceneId() === 'barrio' ? 'world' : 'mini');
   } else {
     render();
     $('#screen').scrollTop = 0;
@@ -42,7 +43,7 @@ function goTab(t) {
 setGoTab(goTab);
 
 // ---------------- mundo ----------------
-initWorld($('#wcanvas'), { onDoor, onEncounter });
+initWorld($('#wcanvas'), { onDoor, onEncounter, onNpc, onStation, onScene: (id) => playMusic(id === 'barrio' ? 'world' : 'mini') });
 bindJoystick($('#joy'), $('#joyk'), $('#abtn'));
 window.addEventListener('resize', () => { if (ui.tab === 'world') resizeWorld(); });
 
@@ -57,7 +58,7 @@ function needEnergy(n, then) {
 }
 
 function pause() { stopWorld(); }
-function resume() { if (ui.tab === 'world') { startWorld(); playMusic('world'); } renderTop(); }
+function resume() { if (ui.tab === 'world') { startWorld(); playMusic(sceneId() === 'barrio' ? 'world' : 'mini'); } renderTop(); }
 
 function onEncounter(m) {
   const def = MONSTERS[m.id];
@@ -98,6 +99,11 @@ function onDoor(id) {
         <button class="btn ghost wide" data-close>🚪 Salir</button>`);
       $('#o_g1').onclick = () => mini((cb) => mash('gym', cb));
       $('#o_g2').onclick = () => { closeModal(); const r = St.completeMission('gym'); if (!r.ok) toast(r.msg); };
+    },
+    clubhouse: () => {
+      modal(`<div class="intro-crest">${crest(56)}</div><h2 class="center">Club House</h2><p class="muted center">Fotos de planteles desde 1907, trofeos y el olor a vestuario de siempre.</p><div class="opts">${optBtn('h1', '🏟️', 'Jugar partido', 'Universitario vs. un rival', '3 ⚡')}${optBtn('h2', '🚿', 'Vestuario', 'Te bañás y recuperás un poco de vida', '+20 ❤️')}</div><button class="btn ghost wide" data-close>Salir</button>`);
+      $('#o_h1').onclick = () => matchMenu();
+      $('#o_h2').onclick = () => { closeModal(); St.setHp(S.hp + 20); sfx('heal'); toast('Ducha caliente después del entreno 🚿 +20'); };
     },
     club: () => {
       const se = St.season();
@@ -146,6 +152,118 @@ function onDoor(id) {
     },
   };
   (opts[id] || (() => {}))();
+}
+
+// ---------------- club y gym por dentro ----------------
+const STATIONS = {
+  // gym
+  banca: { icon: '🏋️', name: 'Press de banca', desc: 'Tocá rápido para levantar la barra.', play: (cb) => mash('gym', cb), real: 'gym' },
+  sentadilla: { icon: '🦵', name: 'Sentadilla', desc: 'Tocá cuando la marca esté en verde: profundidad justa.', play: (cb) => timingGame('sentadilla', cb), real: 'gym' },
+  pesomuerto: { icon: '🏋️', name: 'Peso muerto', desc: 'Mantené apretado y controlá la aguja en la zona verde.', play: (cb) => holdGame(cb), real: 'gym' },
+  dominadas: { icon: '🧗', name: 'Dominadas', desc: 'Tocá izquierda y derecha alternando.', play: (cb) => altGame(cb), real: 'gym' },
+  cinta: { icon: '🏃', name: 'Cinta', desc: 'Tocá al ritmo de los pasos.', play: (cb) => rhythmGame(cb), real: 'correr' },
+  soga: { icon: '🪢', name: 'Saltar la soga', desc: 'Saltá justo cuando la soga pasa por los pies.', play: (cb) => ropeGame(cb), real: 'gym' },
+  cajon: { icon: '📦', name: 'Saltos al cajón', desc: 'Saltá en el momento justo.', play: (cb) => timingGame('cajon', cb), real: 'gym' },
+  mancuernas: { icon: '💪', name: 'Mancuernas', desc: 'Ritmo constante sin pasarte de fatiga.', play: (cb) => curlGame(cb), real: 'gym' },
+  // club
+  palos: { icon: '🦶', name: 'Patadas a los palos', desc: 'Apuntá, medí la potencia, ojo con el viento.', play: (cb) => kicks(cb), real: 'entreno' },
+  conos: { icon: '🏃', name: 'Corrida al try', desc: 'Esquivá defensores hasta el ingoal.', play: (cb) => tryRun(cb), real: 'entreno' },
+  pases: { icon: '🏉', name: 'Pases de medio scrum', desc: 'Sacá rápido de abajo del ruck hacia el lado que te piden.', play: (cb) => passDrill(cb), real: 'pases' },
+  scrum: { icon: '🐃', name: 'Máquina de scrum', desc: 'Empujá más fuerte que el pack rival.', play: (cb) => mash('scrum', cb), real: 'entreno' },
+  line: { icon: '📏', name: 'Práctica de line', desc: 'Tirá cuando el saltador está arriba.', play: (cb) => lineDrill(cb), real: 'entreno' },
+  tackle: { icon: '🛡️', name: 'Tackle con bolsas', desc: 'Tackleá en el momento justo.', play: (cb) => tackleDrill(cb), real: 'entreno' },
+};
+
+function onStation(id) {
+  sfx('click');
+  if (id === 'partido') return matchMenu();
+  const st = STATIONS[id];
+  if (!st) return;
+  const done = St.todayCount(st.real) >= (St.missionDef(st.real)?.daily || 1);
+  modal(`
+    <h2>${st.icon} ${st.name}</h2>
+    <p class="muted">${st.desc}</p>
+    <div class="opts">
+      ${optBtn('s1', '🎮', 'Jugar', 'Minijuego de entrenamiento', '1 ⚡')}
+      ${optBtn('s2', '✅', 'Lo hice en la vida real', done ? 'Ya lo cargaste hoy' : `Cargar: ${St.missionDef(st.real)?.name || ''}`, done ? '✓ Hoy' : '+XP', done)}
+    </div>
+    <button class="btn ghost wide" data-close>Volver</button>`);
+  $('#o_s1').onclick = () => mini(st.play);
+  $('#o_s2').onclick = () => { closeModal(); const r = St.completeMission(st.real); if (!r.ok) toast(r.msg); };
+}
+
+function matchMenu() {
+  const se = St.season();
+  modal(`
+    <div class="intro-crest">${crest(48)}</div>
+    <h2 class="center">🏟️ Partido</h2>
+    <p class="muted center">${se.type === 'vacaciones' ? 'Amistoso de pretemporada.' : 'Partido oficial del torneo.'} Dos tiempos de 2½ minutos. Vos sos el 9.</p>
+    <div class="howto">
+      <b>Cómo se juega</b>
+      <ul>
+        <li>🕹️ Joystick: correr · <b>PASE ▲ / ▼</b>: pasar arriba o abajo (siempre para atrás)</li>
+        <li><b>PATADA</b>: mantené para cargar potencia y soltá · <b>AMAGUE</b>: esquivar un tackle</li>
+        <li>Defendiendo: <b>TACKLE</b> para tirarte · <b>CAMBIAR</b> de jugador</li>
+        <li>En el scrum tocá rápido, en el line elegí la llamada y tirá en el momento justo</li>
+        <li>💻 En la compu: flechas, Q/E pases, espacio patada, F tackle/amague, C cambiar</li>
+      </ul>
+      <small>Se juega en horizontal: girá el celu.</small>
+    </div>
+    <div class="opts">${optBtn('m1', '🏉', 'Jugar partido', 'Universitario vs. un rival', '3 ⚡')}</div>
+    <button class="btn ghost wide" data-close>Volver</button>`);
+  $('#o_m1').onclick = () => {
+    closeModal();
+    needEnergy(3, () => { pause(); startMatch(() => resume()); });
+  };
+}
+
+function onNpc(n) {
+  sfx('click');
+  if (n.kind === 'coach') {
+    modal(`
+      <h2>📋 Entrenador</h2>
+      <div class="bubble">"${pick(COACH_TIPS).replace(/^Entrenador: /, '').replace(/"/g, '')}"</div>
+      <div class="opts">
+        ${optBtn('c1', '🏟️', 'Jugar un partido', 'Universitario vs. un rival', '3 ⚡')}
+        ${optBtn('c2', '📈', '¿Cómo vengo?', 'El entrenador evalúa tu nivel', '')}
+      </div>
+      <button class="btn ghost wide" data-close>Volver</button>`);
+    $('#o_c1').onclick = () => matchMenu();
+    $('#o_c2').onclick = () => {
+      const b = St.battleStats();
+      const tips = [];
+      if (St.statLvl('fue') <= St.statLvl('res')) tips.push('Más gym: necesito fuerza en los rucks.');
+      else tips.push('Mucha fuerza, ahora sumá pasadas para la resistencia.');
+      if ((S.matches || 0) < 3) tips.push('Jugá más partidos para agarrar ritmo.');
+      tips.push(`Nivel ${b.level} · Partidos jugados: ${S.matches || 0} · Ganados: ${S.matchWins || 0}`);
+      toast(tips.join('<br>'));
+    };
+    return;
+  }
+  // compañero
+  const today = dayKey();
+  const key = 'm_' + n.mate.id;
+  const first = S.daily?.[key] !== today;
+  modal(`
+    <div class="talk">
+      <div class="talk-head"><canvas id="mtc" width="96" height="132"></canvas>
+        <div><h2>${n.name}</h2><small class="muted">Compañero de la U</small></div></div>
+      <div class="bubble" id="mtb">"¡Giuli! ¿Qué onda, todo bien?"</div>
+      <div class="opts">${TALK_TOPICS.map((t) => optBtn('t_' + t.id, t.icon, t.name, '', first ? '+aura' : '')).join('')}</div>
+      <button class="btn ghost wide" data-close>Volver</button>
+    </div>`);
+  const cv = $('#mtc');
+  if (cv) { import('./pixel.js').then(({ playerSprite }) => { const x = cv.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(playerSprite(n.mate.look, 'down', 0), 0, 0, 96, 132); }); }
+  for (const t of TALK_TOPICS) {
+    $(`#o_t_${t.id}`).onclick = () => {
+      $('#mtb').textContent = `"${pick(t.lines)}"`;
+      sfx('click');
+      if (S.daily?.[key] !== today) {
+        S.daily = { ...(S.daily || {}), [key]: today };
+        St.grant({ aura: 40, stats: { car: 2 } }, `Charla con ${n.name}`, 'x', 'mate');
+      }
+    };
+  }
 }
 
 // ---------------- primera vez ----------------

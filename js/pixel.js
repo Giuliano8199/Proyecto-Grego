@@ -377,7 +377,7 @@ export function playerSprite(look, dir = 'down', frame = 0, mode = null) {
     const base = dir === 'up' ? P_UP : dir === 'down' ? P_DOWN : P_SIDE;
     const vdir = dir === 'left' || dir === 'right' ? 'side' : dir;
     let tpl = applyHair(base, look.hair?.style || 'corto', vdir);
-    const legs = LEGS[vdir === 'side' ? 'side' : 'down'][frame % 3];
+    const legs = LEGS[vdir === 'side' ? 'side' : 'down'][(((frame | 0) % 3) + 3) % 3];
     tpl = [...tpl.slice(0, 17), ...legs];
     const j = look.jersey || { pattern: 'hoops', a: '#d62828', b: '#fff', n: '#1b1b1b' };
     let pal = {

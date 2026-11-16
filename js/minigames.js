@@ -39,7 +39,7 @@ function close(result) {
 }
 function hud(t) { const h = el('mghud'); if (h) h.textContent = t; }
 function text(t) { const x = el('mgtext'); if (x) { x.innerHTML = t; x.style.display = t ? 'flex' : 'none'; } }
-function buttons(html, bind) { const b = el('mgbtns'); b.innerHTML = html; bind?.(b); }
+function buttons(html, bind) { const b = el('mgbtns'); if (!b) return; b.innerHTML = html; bind?.(b); }
 function frame(fn) {
   const mine = G;
   const step = (ts) => {
@@ -52,6 +52,7 @@ function frame(fn) {
   requestAnimationFrame(step);
 }
 function finish(summary, reward, label) {
+  if (!G || !G.alive) return;
   if (reward) grant(reward, null, 'g', label);
   text(`<div class="mg-result">${summary}${reward ? `<div class="mg-rew">+${fmt(reward.xp || 0)} XP · +${fmt(reward.gold || 0)} oro · +${fmt(reward.aura || 0)} aura</div>` : ''}</div>`);
   buttons(`<button class="btn big" id="mgok">Listo</button>`, () => (el('mgok').onclick = () => close(true)));
@@ -357,4 +358,446 @@ export function trivia(onEnd) {
   };
   hud('Correctas 0');
   show();
+}
+
+// =============================================================
+//  GYM: ejercicios con mecánicas distintas
+// =============================================================
+const lk = () => look();
+function drawGuy(ctx, x, y, sc, dir = 'down', frame = 0) {
+  const s = playerSprite(lk(), dir, frame);
+  ctx.drawImage(s, x - 8 * sc, y - 22 * sc, 16 * sc, 22 * sc);
+}
+function gymBg(ctx, w, h, d) {
+  ctx.fillStyle = '#2b2e37'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#a9d6e5'; ctx.fillRect(0, 0, w, h * 0.35);
+  ctx.fillStyle = '#e0f3fa'; for (let x = 20 * d; x < w; x += 80 * d) ctx.fillRect(x, 10 * d, 6 * d, h * 0.3);
+  ctx.fillStyle = '#6c757d'; ctx.fillRect(0, h * 0.35, w, 6 * d);
+  ctx.fillStyle = '#3a3d46'; ctx.fillRect(0, h * 0.35 + 6 * d, w, h);
+}
+function gymReward(score, max, stat = 'fue') {
+  const k = score / max;
+  return { xp: Math.round(15 + 35 * k), gold: Math.round(5 + 15 * k), aura: Math.round(50 + 350 * k), stats: { [stat]: Math.round(2 + 5 * k) } };
+}
+
+// SENTADILLA / CAJÓN: tocá cuando la marca esté en la zona verde
+export function timingGame(kind, onEnd) {
+  const isBox = kind === 'cajon';
+  open(isBox ? '📦 Saltos al cajón' : '🏋️ Sentadilla', onEnd);
+  onKeys();
+  const reps = isBox ? 6 : 8;
+  const Z = { n: 0, good: 0, t: 0, pos: 0, speed: 1.6, state: 'play', anim: 0, last: '' };
+  text(`<div class="mg-result">${isBox ? 'Tocá cuando la marca esté en verde para saltar al cajón.' : 'Bajá y subí: tocá cuando la marca esté en la zona verde (profundidad justa).'}</div>`);
+  setTimeout(() => text(''), 1600);
+  const tap = () => {
+    if (Z.state !== 'play') return;
+    const inZone = Z.pos > 0.42 && Z.pos < 0.58;
+    const perfect = Z.pos > 0.47 && Z.pos < 0.53;
+    Z.n++;
+    if (inZone) { Z.good += perfect ? 1.2 : 1; Z.last = perfect ? '¡PERFECTA!' : '¡BIEN!'; sfx('done'); Z.anim = 1; }
+    else { Z.last = 'Mala técnica'; sfx('miss'); }
+    Z.lastT = 0.7;
+    Z.speed += 0.18;
+    if (Z.n >= reps) {
+      Z.state = 'end';
+      const score = Math.min(reps, Math.round(Z.good));
+      setTimeout(() => finish(`<b>${score} de ${reps}</b> repeticiones buenas`, gymReward(score, reps, isBox ? 'res' : 'fue'), kind), 600);
+    }
+  };
+  G.onKey = (k) => { if (k === ' ' || k === 'enter') tap(); };
+  buttons(`<button class="btn big mash" id="tt">${isBox ? '¡SALTO!' : '¡ARRIBA!'}</button>`, () => (el('tt').onpointerdown = (e) => { e.preventDefault(); tap(); }));
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    Z.t += dt;
+    Z.pos = (Math.sin(Z.t * Z.speed * 2) + 1) / 2;
+    gymBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 3.6));
+    const gx = w * 0.42, gy = h * 0.88;
+    if (Z.anim > 0) Z.anim -= dt * 2;
+    if (isBox) {
+      ctx.fillStyle = '#8b5a2b'; ctx.fillRect(w * 0.48, h * 0.7, w * 0.22, h * 0.18);
+      ctx.fillStyle = '#a47148'; ctx.fillRect(w * 0.48, h * 0.7, w * 0.22, 8 * d);
+      const jump = Z.anim > 0 ? Math.sin((1 - Z.anim) * Math.PI) * h * 0.2 : 0;
+      drawGuy(ctx, gx + (Z.anim > 0 ? (1 - Z.anim) * w * 0.15 : 0), gy - jump, sc, 'right');
+    } else {
+      const squat = Z.pos * 6 * sc;
+      ctx.fillStyle = '#6c757d'; ctx.fillRect(gx - 80 * d, gy - 18 * sc + squat, 160 * d, 5 * d);
+      ctx.fillStyle = '#222'; ctx.fillRect(gx - 90 * d, gy - 22 * sc + squat, 14 * d, 30 * d); ctx.fillRect(gx + 76 * d, gy - 22 * sc + squat, 14 * d, 30 * d);
+      drawGuy(ctx, gx, gy + squat * 0.4, sc, 'down');
+    }
+    // barra de timing
+    const bx = w * 0.82, by = h * 0.15, bh = h * 0.7;
+    ctx.fillStyle = '#111'; ctx.fillRect(bx, by, 26 * d, bh);
+    ctx.fillStyle = '#06d6a0'; ctx.fillRect(bx, by + bh * 0.42, 26 * d, bh * 0.16);
+    ctx.fillStyle = '#ffd166'; ctx.fillRect(bx, by + bh * 0.47, 26 * d, bh * 0.06);
+    ctx.fillStyle = '#fff'; ctx.fillRect(bx - 8 * d, by + bh * Z.pos - 3 * d, 42 * d, 6 * d);
+    if (Z.lastT > 0) { Z.lastT -= dt; pxText(ctx, Z.last, w * 0.42, h * 0.25, 13, Z.last.includes('Mala') ? '#ef476f' : '#06d6a0'); }
+    hud(`Rep ${Math.min(Z.n + 1, reps)}/${reps}`);
+  });
+}
+
+// PESO MUERTO: mantené apretado para subir, soltá para bajar. Mantené la aguja en verde.
+export function holdGame(onEnd) {
+  open('🏋️ Peso muerto', onEnd);
+  onKeys();
+  const H = { y: 0.2, v: 0, hold: false, prog: 0, reps: 0, t: 0, zone: 0.55, zt: 0, state: 'play', time: 25 };
+  text('<div class="mg-result">Mantené apretado para subir la aguja y soltá para bajar.<br>Dejala en la zona verde para levantar la barra.</div>');
+  setTimeout(() => text(''), 1800);
+  buttons(`<button class="btn big mash" id="hh">MANTENÉ</button>`, () => {
+    const b = el('hh');
+    b.onpointerdown = (e) => { e.preventDefault(); H.hold = true; };
+    b.onpointerup = b.onpointerleave = b.onpointercancel = () => { H.hold = false; };
+  });
+  G.onKey = (k) => { if (k === ' ') H.hold = true; };
+  window.addEventListener('keyup', (e) => { if (e.key === ' ' && G) H.hold = false; }, { once: false });
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    if (H.state === 'play') {
+      H.t += dt; H.time -= dt;
+      H.zone = 0.5 + Math.sin(H.t * 1.3) * 0.25;
+      H.v += (H.hold ? 1.6 : -1.4) * dt;
+      H.v *= 0.96;
+      H.y = clamp(H.y + H.v * dt, 0, 1);
+      if (H.y <= 0 || H.y >= 1) H.v = 0;
+      const inZ = Math.abs(H.y - H.zone) < 0.1;
+      H.prog = clamp(H.prog + (inZ ? 0.45 : -0.25) * dt, 0, 1);
+      if (H.prog >= 1) { H.reps++; H.prog = 0; sfx('done'); }
+      if (H.reps >= 3 || H.time <= 0) {
+        H.state = 'end';
+        finish(`<b>${H.reps} de 3</b> levantamientos`, gymReward(H.reps, 3, 'fue'), 'pesomuerto');
+      }
+    }
+    gymBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 3.6));
+    const gx = w * 0.4, gy = h * 0.88;
+    const lift = H.prog * 10 * sc;
+    drawGuy(ctx, gx, gy, sc, 'down');
+    ctx.fillStyle = '#adb5bd'; ctx.fillRect(gx - 90 * d, gy - 6 * sc - lift, 180 * d, 5 * d);
+    ctx.fillStyle = '#222'; ctx.fillRect(gx - 100 * d, gy - 12 * sc - lift, 16 * d, 12 * sc); ctx.fillRect(gx + 84 * d, gy - 12 * sc - lift, 16 * d, 12 * sc);
+    const bx = w * 0.82, by = h * 0.12, bh = h * 0.72;
+    ctx.fillStyle = '#111'; ctx.fillRect(bx, by, 28 * d, bh);
+    ctx.fillStyle = '#06d6a0'; ctx.fillRect(bx, by + bh * (1 - H.zone - 0.1), 28 * d, bh * 0.2);
+    ctx.fillStyle = '#fff'; ctx.fillRect(bx - 8 * d, by + bh * (1 - H.y) - 3 * d, 44 * d, 6 * d);
+    ctx.fillStyle = '#222'; ctx.fillRect(w * 0.1, h * 0.1, w * 0.55, 12 * d);
+    ctx.fillStyle = '#ffd166'; ctx.fillRect(w * 0.1, h * 0.1, w * 0.55 * H.prog, 12 * d);
+    hud(`Levantadas ${H.reps}/3 · ⏱ ${Math.max(0, H.time).toFixed(0)} s`);
+  });
+}
+
+// DOMINADAS: tocá izquierda y derecha alternando
+export function altGame(onEnd) {
+  open('🧗 Dominadas', onEnd);
+  onKeys();
+  const A = { next: 'L', up: 0, reps: 0, time: 15, state: 'play', streak: 0 };
+  text('<div class="mg-result">Tocá ◀ y ▶ alternando, lo más rápido posible.<br>Cada vez que llegás arriba cuenta una dominada.</div>');
+  setTimeout(() => text(''), 1600);
+  const tap = (s) => {
+    if (A.state !== 'play') return;
+    if (s === A.next) { A.up += 0.12 + statLvl('fue') * 0.004; A.next = s === 'L' ? 'R' : 'L'; sfx('step'); }
+    else { A.up = Math.max(0, A.up - 0.15); sfx('miss'); }
+    if (A.up >= 1) { A.reps++; A.up = 0; sfx('done'); }
+  };
+  G.onKey = (k) => { if (k === 'arrowleft' || k === 'a') tap('L'); if (k === 'arrowright' || k === 'd') tap('R'); };
+  buttons(`<div class="row2"><button class="btn big" id="al">◀</button><button class="btn big" id="ar">▶</button></div>`, () => {
+    el('al').onpointerdown = (e) => { e.preventDefault(); tap('L'); };
+    el('ar').onpointerdown = (e) => { e.preventDefault(); tap('R'); };
+  });
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    if (A.state === 'play') {
+      A.time -= dt; A.up = Math.max(0, A.up - dt * 0.25);
+      if (A.time <= 0) { A.state = 'end'; finish(`<b>${A.reps}</b> dominadas`, gymReward(Math.min(A.reps, 10), 10, 'fue'), 'dominadas'); }
+    }
+    gymBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 3.8));
+    ctx.fillStyle = '#6c757d'; ctx.fillRect(w * 0.25, h * 0.18, 8 * d, h * 0.7); ctx.fillRect(w * 0.65, h * 0.18, 8 * d, h * 0.7);
+    ctx.fillStyle = '#adb5bd'; ctx.fillRect(w * 0.25, h * 0.18, w * 0.4 + 8 * d, 6 * d);
+    const gy = h * 0.18 + 24 * sc - A.up * 7 * sc;
+    drawGuy(ctx, w * 0.45, gy, sc, 'up');
+    pxText(ctx, A.next === 'L' ? '◀' : '▶', w * 0.45, h * 0.92, 18, '#ffd166');
+    hud(`Dominadas ${A.reps} · ⏱ ${Math.max(0, A.time).toFixed(1)} s`);
+  });
+}
+
+// CINTA: tocá al ritmo
+export function rhythmGame(onEnd) {
+  open('🏃 Cinta', onEnd);
+  onKeys();
+  const R = { t: -1.2, beats: [], hit: 0, total: 22, state: 'play', fb: '', fbT: 0 };
+  for (let i = 0; i < R.total; i++) R.beats.push({ t: i * 0.55 + (i > 10 ? -(i - 10) * 0.07 : 0), done: false });
+  text('<div class="mg-result">Tocá cuando cada marca pasa por la línea amarilla.<br>¡Mantené el ritmo!</div>');
+  setTimeout(() => text(''), 1200);
+  const tap = () => {
+    if (R.state !== 'play') return;
+    const b = R.beats.find((x) => !x.done && Math.abs(x.t - R.t) < 0.16);
+    if (b) { b.done = true; R.hit++; R.fb = Math.abs(b.t - R.t) < 0.06 ? '¡JUSTO!' : 'Bien'; sfx('step'); }
+    else { R.fb = 'Fuera de ritmo'; sfx('miss'); }
+    R.fbT = 0.5;
+  };
+  G.onKey = (k) => { if (k === ' ' || k === 'enter') tap(); };
+  buttons(`<button class="btn big mash" id="rt">PASO</button>`, () => (el('rt').onpointerdown = (e) => { e.preventDefault(); tap(); }));
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    R.t += dt;
+    if (R.state === 'play' && R.t > R.beats[R.beats.length - 1].t + 0.5) {
+      R.state = 'end';
+      finish(`<b>${R.hit} de ${R.total}</b> pasos al ritmo`, gymReward(R.hit, R.total, 'res'), 'cinta');
+    }
+    gymBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 3.6));
+    ctx.fillStyle = '#1b1b1b'; ctx.fillRect(w * 0.2, h * 0.82, w * 0.45, 14 * d);
+    for (let x = 0; x < w * 0.45; x += 14 * d) { ctx.fillStyle = '#343a40'; ctx.fillRect(w * 0.2 + ((x + R.t * 160 * d) % (w * 0.45)), h * 0.82 + 3 * d, 6 * d, 8 * d); }
+    ctx.fillStyle = '#495057'; ctx.fillRect(w * 0.58, h * 0.5, 8 * d, h * 0.32);
+    drawGuy(ctx, w * 0.4, h * 0.83, sc, 'right', Math.floor(R.t * 10) % 3);
+    // pista de ritmo
+    const lane = h * 0.18;
+    ctx.fillStyle = '#111'; ctx.fillRect(0, lane - 20 * d, w, 40 * d);
+    const hitX = w * 0.2;
+    ctx.fillStyle = '#ffd166'; ctx.fillRect(hitX - 2 * d, lane - 22 * d, 4 * d, 44 * d);
+    for (const b of R.beats) {
+      if (b.done) continue;
+      const x = hitX + (b.t - R.t) * 260 * d;
+      if (x < -20 || x > w + 20) continue;
+      ctx.fillStyle = '#4cc9f0'; ctx.beginPath(); ctx.arc(x, lane, 12 * d, 0, Math.PI * 2); ctx.fill();
+    }
+    if (R.fbT > 0) { R.fbT -= dt; pxText(ctx, R.fb, w * 0.5, h * 0.36, 12, R.fb.includes('Fuera') ? '#ef476f' : '#06d6a0'); }
+    hud(`Pasos ${R.hit}/${R.total}`);
+  });
+}
+
+// SOGA: saltá cuando la soga pasa por abajo
+export function ropeGame(onEnd) {
+  open('🪢 Saltar la soga', onEnd);
+  onKeys();
+  const R = { a: -Math.PI / 2, speed: 3.2, jumps: 0, jump: 0, state: 'play', lastBottom: false };
+  text('<div class="mg-result">Tocá para saltar justo cuando la soga pasa por tus pies.<br>¿Cuántos saltos seguidos hacés?</div>');
+  setTimeout(() => text(''), 1500);
+  const tap = () => { if (R.state === 'play' && R.jump <= 0) { R.jump = 0.42; sfx('step'); } };
+  G.onKey = (k) => { if (k === ' ' || k === 'enter') tap(); };
+  buttons(`<button class="btn big mash" id="ro">¡SALTO!</button>`, () => (el('ro').onpointerdown = (e) => { e.preventDefault(); tap(); }));
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    if (R.state === 'play') {
+      R.a += R.speed * dt;
+      if (R.jump > 0) R.jump -= dt;
+      const bottom = Math.cos(R.a) > 0.97; // soga en los pies
+      if (bottom && !R.lastBottom) {
+        if (R.jump > 0.05) { R.jumps++; R.speed = Math.min(9, R.speed + 0.18); }
+        else { R.state = 'end'; sfx('miss'); finish(`<b>${R.jumps}</b> saltos seguidos`, gymReward(Math.min(R.jumps, 30), 30, 'res'), 'soga'); }
+      }
+      R.lastBottom = bottom;
+    }
+    gymBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 3.6));
+    const gx = w * 0.45, gy = h * 0.85;
+    const jy = R.jump > 0 ? Math.sin((R.jump / 0.42) * Math.PI) * 6 * sc : 0;
+    // soga (elipse que gira)
+    const ry = Math.cos(R.a);
+    const ropeY = gy - 11 * sc + ry * 12 * sc;
+    const behind = Math.sin(R.a) < 0;
+    const drawRope = () => {
+      ctx.strokeStyle = '#e63946'; ctx.lineWidth = 3 * d;
+      ctx.beginPath(); ctx.moveTo(gx - 9 * sc, gy - 12 * sc - jy); ctx.quadraticCurveTo(gx, ropeY + (ry > 0 ? 6 * sc : -6 * sc), gx + 9 * sc, gy - 12 * sc - jy); ctx.stroke();
+    };
+    if (behind) drawRope();
+    drawGuy(ctx, gx, gy - jy, sc, 'down');
+    if (!behind) drawRope();
+    pxText(ctx, `${R.jumps}`, w * 0.45, h * 0.2, 22, '#ffd166');
+    hud(`Saltos ${R.jumps}`);
+  });
+}
+
+// MANCUERNAS: tocá rápido pero cuidá la fatiga
+export function curlGame(onEnd) {
+  open('💪 Mancuernas', onEnd);
+  onKeys();
+  const C = { reps: 0, prog: 0, fat: 0, time: 15, state: 'play', rest: 0 };
+  text('<div class="mg-result">Tocá para subir la mancuerna. Si la fatiga llega al rojo, tenés que descansar.<br>¡Ritmo constante!</div>');
+  setTimeout(() => text(''), 1600);
+  const tap = () => {
+    if (C.state !== 'play' || C.rest > 0) return;
+    C.prog += 0.25; C.fat += 0.09;
+    if (C.fat >= 1) { C.rest = 1.6; sfx('miss'); }
+    if (C.prog >= 1) { C.prog = 0; C.reps++; sfx('step'); }
+  };
+  G.onKey = (k) => { if (k === ' ' || k === 'enter') tap(); };
+  buttons(`<button class="btn big mash" id="cu">¡ARRIBA!</button>`, () => (el('cu').onpointerdown = (e) => { e.preventDefault(); tap(); }));
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    if (C.state === 'play') {
+      C.time -= dt; C.fat = Math.max(0, C.fat - dt * 0.35);
+      if (C.rest > 0) { C.rest -= dt; if (C.rest <= 0) C.fat = 0.3; }
+      if (C.time <= 0) { C.state = 'end'; finish(`<b>${C.reps}</b> repeticiones`, gymReward(Math.min(C.reps, 25), 25, 'fue'), 'mancuernas'); }
+    }
+    gymBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 3.6));
+    const gx = w * 0.42, gy = h * 0.88;
+    drawGuy(ctx, gx, gy, sc, 'down');
+    const arm = C.prog * 8 * sc;
+    ctx.fillStyle = '#222'; ctx.fillRect(gx - 12 * sc, gy - 9 * sc - arm, 6 * sc, 3 * sc); ctx.fillRect(gx + 6 * sc, gy - 9 * sc - arm, 6 * sc, 3 * sc);
+    ctx.fillStyle = '#111'; ctx.fillRect(w * 0.1, h * 0.12, w * 0.6, 12 * d);
+    ctx.fillStyle = C.fat > 0.75 ? '#ef476f' : '#ffd166'; ctx.fillRect(w * 0.1, h * 0.12, w * 0.6 * C.fat, 12 * d);
+    pxText(ctx, C.rest > 0 ? 'DESCANSÁ...' : 'FATIGA', w * 0.4, h * 0.1, 8, C.rest > 0 ? '#ef476f' : '#fff');
+    hud(`Reps ${C.reps} · ⏱ ${Math.max(0, C.time).toFixed(1)} s`);
+  });
+}
+
+// =============================================================
+//  RUGBY: ejercicios de entrenamiento
+// =============================================================
+function pitchBg(ctx, w, h, d) {
+  for (let i = 0; i < 10; i++) { ctx.fillStyle = i % 2 ? '#4caf50' : '#43a047'; ctx.fillRect(0, (h / 10) * i, w, h / 10 + 1); }
+}
+
+// PASES DE MEDIO SCRUM: sacá rápido hacia el lado que te piden
+export function passDrill(onEnd) {
+  open('🏉 Pases de medio scrum', onEnd);
+  onKeys();
+  const P = { n: 0, total: 14, ok: 0, side: null, t: 0, wait: 0.8, react: [], state: 'play', ball: null, fb: '', fbT: 0 };
+  text('<div class="mg-result">Sos el 9. Cuando un compañero pida la pelota, pasala a ese lado lo más rápido que puedas.</div>');
+  setTimeout(() => text(''), 1500);
+  const passTo = (s) => {
+    if (P.state !== 'play' || !P.side) return;
+    if (s === P.side) { P.ok++; P.react.push(P.t); P.fb = P.t < 0.45 ? '¡SALIDA RÁPIDA!' : 'Buen pase'; sfx('kick'); }
+    else { P.fb = 'Pase al lado equivocado'; sfx('miss'); }
+    P.fbT = 0.6; P.ball = { s, t: 0 };
+    P.side = null; P.n++; P.wait = 0.5 + Math.random() * 0.6;
+    if (P.n >= P.total) {
+      P.state = 'end';
+      const avg = P.react.length ? P.react.reduce((a, b) => a + b, 0) / P.react.length : 2;
+      const score = Math.round(P.ok * (avg < 0.5 ? 1.2 : avg < 0.8 ? 1 : 0.8));
+      setTimeout(() => finish(`<b>${P.ok} de ${P.total}</b> pases bien<br>Reacción promedio: ${avg.toFixed(2)} s`, { xp: 20 + score * 3, gold: 8 + score, aura: 100 + score * 30, stats: { dis: 3 + Math.round(score / 3), int: 2 } }, 'pases'), 500);
+    }
+  };
+  G.onKey = (k) => { if (k === 'arrowleft' || k === 'a') passTo('L'); if (k === 'arrowright' || k === 'd') passTo('R'); };
+  buttons(`<div class="row2"><button class="btn big" id="pl">◀ PASE</button><button class="btn big" id="pr">PASE ▶</button></div>`, () => {
+    el('pl').onpointerdown = (e) => { e.preventDefault(); passTo('L'); };
+    el('pr').onpointerdown = (e) => { e.preventDefault(); passTo('R'); };
+  });
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    if (P.state === 'play') {
+      if (P.side) P.t += dt;
+      else { P.wait -= dt; if (P.wait <= 0) { P.side = Math.random() < 0.5 ? 'L' : 'R'; P.t = 0; } }
+      if (P.side && P.t > 1.6) { P.fb = '¡Muy lento!'; P.fbT = 0.6; sfx('miss'); P.side = null; P.n++; P.wait = 0.6; if (P.n >= P.total) passTo('X'); }
+    }
+    pitchBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 5));
+    // ruck
+    ctx.fillStyle = '#00000033'; ctx.beginPath(); ctx.ellipse(w / 2, h * 0.42, 60 * d, 18 * d, 0, 0, Math.PI * 2); ctx.fill();
+    const riv = { jersey: { pattern: 'hoops', a: '#1d3557', b: '#ffd60a', n: '#fff' }, hair: { style: 'corto', c: '#222', d: '#000' }, boots: { c: '#111' } };
+    for (let i = -1; i <= 1; i++) { const s = playerSprite(riv, 'down', 0); ctx.drawImage(s, w / 2 + i * 14 * sc - 8 * sc, h * 0.3 - 20 * sc, 16 * sc, 22 * sc); }
+    drawGuy(ctx, w / 2, h * 0.62, sc, 'up');
+    // compañeros a los costados
+    const mates = [[w * 0.12, 'L'], [w * 0.88, 'R']];
+    for (const [x, s] of mates) {
+      const call = P.side === s;
+      const tm = { jersey: { pattern: 'quarters', a: '#e53935', b: '#fff', n: '#1b1b1b' }, hair: { style: 'corto', c: '#3b2a1e', d: '#241a12' }, boots: { c: '#111' } };
+      ctx.drawImage(playerSprite(tm, 'up', call ? Math.floor(G.t * 10) % 3 : 0), x - 8 * sc, h * 0.75 - 20 * sc, 16 * sc, 22 * sc);
+      if (call) { pxText(ctx, '¡ACÁ!', x, h * 0.75 - 24 * sc, 12, '#ffd166'); }
+    }
+    if (P.ball) {
+      P.ball.t += dt * 3;
+      const tx = P.ball.s === 'L' ? w * 0.12 : w * 0.88;
+      const t = Math.min(1, P.ball.t);
+      const bx = w / 2 + (tx - w / 2) * t, by = h * 0.6 + (h * 0.66 - h * 0.6) * t - Math.sin(t * Math.PI) * 30 * d;
+      ctx.fillStyle = '#f1e3c8'; ctx.beginPath(); ctx.ellipse(bx, by, 9 * d, 6 * d, t * 8, 0, Math.PI * 2); ctx.fill();
+      if (t >= 1) P.ball = null;
+    }
+    if (P.fbT > 0) { P.fbT -= dt; pxText(ctx, P.fb, w / 2, h * 0.15, 12, P.fb.includes('equivocado') || P.fb.includes('lento') ? '#ef476f' : '#06d6a0'); }
+    hud(`Pases ${P.ok}/${P.n}`);
+  });
+}
+
+// LINE: elegí la llamada y tirá cuando el saltador está arriba
+export function lineDrill(onEnd) {
+  open('📏 Práctica de line', onEnd);
+  onKeys();
+  const L = { n: 0, total: 6, ok: 0, t: 0, call: 0, state: 'play', fly: null, fb: '', fbT: 0 };
+  const calls = ['ADELANTE', 'MEDIO', 'ATRÁS'];
+  L.call = Math.floor(Math.random() * 3);
+  text('<div class="mg-result">Tirá la pelota cuando el saltador de la llamada esté en lo más alto.</div>');
+  setTimeout(() => text(''), 1400);
+  const tap = () => {
+    if (L.state !== 'play' || L.fly) return;
+    const hgt = Math.abs(Math.sin(L.t * 2.4));
+    const ok = hgt > 0.82;
+    L.fly = { t: 0, ok };
+    sfx('kick');
+  };
+  G.onKey = (k) => { if (k === ' ' || k === 'enter') tap(); };
+  buttons(`<button class="btn big mash" id="lt">¡TIRAR!</button>`, () => (el('lt').onpointerdown = (e) => { e.preventDefault(); tap(); }));
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    L.t += dt;
+    pitchBg(ctx, w, h, d);
+    ctx.fillStyle = '#fff'; ctx.fillRect(w * 0.08, 0, 4 * d, h);
+    const sc = Math.max(3, Math.round(h / 22 / 5));
+    const tm = { jersey: { pattern: 'quarters', a: '#e53935', b: '#fff', n: '#1b1b1b' }, hair: { style: 'rapado', c: '#3b2a1e', d: '#241a12' }, boots: { c: '#111' } };
+    const ys = [h * 0.3, h * 0.5, h * 0.7];
+    const lift = Math.abs(Math.sin(L.t * 2.4)) * 10 * sc;
+    ys.forEach((y, i) => {
+      const up = i === L.call ? lift : 0;
+      ctx.drawImage(playerSprite(tm, 'left', 0), w * 0.55 - 8 * sc, y - 20 * sc - up, 16 * sc, 22 * sc);
+      if (i === L.call) pxText(ctx, calls[i], w * 0.75, y - 6 * sc, 9, '#ffd166');
+    });
+    drawGuy(ctx, w * 0.06, h * 0.55, sc, 'right');
+    if (L.fly) {
+      L.fly.t += dt * 1.8;
+      const t = Math.min(1, L.fly.t);
+      const tx = w * 0.55, ty = ys[L.call] - 20 * sc - (L.fly.ok ? 10 * sc : 0);
+      const bx = w * 0.08 + (tx - w * 0.08) * t, by = h * 0.5 + (ty - h * 0.5) * t - Math.sin(t * Math.PI) * 40 * d;
+      ctx.fillStyle = '#f1e3c8'; ctx.beginPath(); ctx.ellipse(bx, by, 8 * d, 6 * d, t * 6, 0, Math.PI * 2); ctx.fill();
+      if (t >= 1) {
+        L.n++; if (L.fly.ok) { L.ok++; L.fb = '¡LINE LIMPIO!'; sfx('done'); } else { L.fb = 'Le erraste al salto'; sfx('miss'); }
+        L.fbT = 0.7; L.fly = null; L.call = Math.floor(Math.random() * 3);
+        if (L.n >= L.total) { L.state = 'end'; finish(`<b>${L.ok} de ${L.total}</b> lines ganados`, { xp: 20 + L.ok * 6, gold: 8 + L.ok * 3, aura: 100 + L.ok * 60, stats: { dis: 2 + L.ok, car: 2 } }, 'line'); }
+      }
+    }
+    if (L.fbT > 0) { L.fbT -= dt; pxText(ctx, L.fb, w / 2, h * 0.12, 12, L.fb.includes('erraste') ? '#ef476f' : '#06d6a0'); }
+    hud(`Lines ${L.ok}/${L.n}`);
+  });
+}
+
+// TACKLE: tocá cuando el atacante entra en el círculo verde
+export function tackleDrill(onEnd) {
+  open('🛡️ Tackle', onEnd);
+  onKeys();
+  const K = { n: 0, total: 6, ok: 0, state: 'play', d: 1, swerve: 0, sp: 0.35, fb: '', fbT: 0, res: 0 };
+  text('<div class="mg-result">El atacante viene hacia vos. Tocá TACKLE cuando entre al círculo verde.<br>¡Ojo con los amagues!</div>');
+  setTimeout(() => text(''), 1500);
+  const reset = () => { K.d = 1; K.sp = 0.32 + K.n * 0.05; K.swerve = (Math.random() - 0.5) * 2; K.res = 0; };
+  reset();
+  const tap = () => {
+    if (K.state !== 'play' || K.res > 0) return;
+    const good = K.d < 0.24 && K.d > 0.08;
+    K.n++;
+    if (good) { K.ok++; K.fb = '¡TACKLE!'; sfx('hit'); } else { K.fb = K.d >= 0.24 ? 'Muy temprano' : 'Te pasó'; sfx('miss'); }
+    K.fbT = 0.8; K.res = 0.9;
+  };
+  G.onKey = (k) => { if (k === ' ' || k === 'enter') tap(); };
+  buttons(`<button class="btn big mash" id="tk">TACKLE</button>`, () => (el('tk').onpointerdown = (e) => { e.preventDefault(); tap(); }));
+  frame((dt) => {
+    const { ctx, w, h, d } = G;
+    if (K.state === 'play') {
+      if (K.res > 0) { K.res -= dt; if (K.res <= 0) { if (K.n >= K.total) { K.state = 'end'; finish(`<b>${K.ok} de ${K.total}</b> tackles`, { xp: 20 + K.ok * 6, gold: 8 + K.ok * 3, aura: 100 + K.ok * 60, stats: { fue: 2 + K.ok, res: 2 } }, 'tackle'); } else reset(); } }
+      else {
+        K.d -= K.sp * dt;
+        if (K.d <= 0) { K.n++; K.fb = 'Te pasó'; K.fbT = 0.8; K.res = 0.9; sfx('miss'); }
+      }
+    }
+    pitchBg(ctx, w, h, d);
+    const sc = Math.max(3, Math.round(h / 22 / 4));
+    const meY = h * 0.85;
+    ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 4 * d;
+    ctx.beginPath(); ctx.ellipse(w / 2, meY - 4 * sc, w * 0.18, 18 * sc * 0.6, 0, 0, Math.PI * 2); ctx.stroke();
+    const ay = meY - K.d * h * 0.75;
+    const ax = w / 2 + Math.sin(K.d * 9 + K.swerve * 3) * w * 0.12 * K.d * 2;
+    const riv = { jersey: { pattern: 'hoops', a: '#2d6a4f', b: '#fff', n: '#fff' }, hair: { style: 'rapado', c: '#222', d: '#000' }, boots: { c: '#111' } };
+    const s = 0.6 + (1 - K.d) * 0.6;
+    ctx.drawImage(playerSprite(riv, 'down', Math.floor(G.t * 10) % 3), ax - 8 * sc * s, ay - 20 * sc * s, 16 * sc * s, 22 * sc * s);
+    drawGuy(ctx, w / 2, meY + 14 * sc, sc, 'up');
+    if (K.fbT > 0) { K.fbT -= dt; pxText(ctx, K.fb, w / 2, h * 0.15, 13, K.fb === '¡TACKLE!' ? '#06d6a0' : '#ef476f'); }
+    hud(`Tackles ${K.ok}/${K.n}`);
+  });
 }

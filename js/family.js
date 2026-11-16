@@ -29,7 +29,7 @@ function drawPortraits(root = document) {
     }
     const f = FAMILY.find((x) => x.id === id);
     const s = famSprite(f);
-    const k = f.small ? 0.74 : f.look.big ? 1 : 0.93;
+    const k = f.small ? 0.66 : f.look.tall ? 1 : 0.84;
     const w = cv.width * k, h = cv.height * k;
     ctx.drawImage(s, (cv.width - w) / 2, cv.height - h, w, h);
   });
@@ -39,8 +39,8 @@ function drawPortraits(root = document) {
 export function openHouse() {
   const rested = doneToday('rest');
   const dogs = doneToday('dogs');
-  const fam = FAMILY.filter((f) => f.id !== 'tommy');
-  const tommy = FAMILY.find((f) => f.id === 'tommy');
+  const fam = FAMILY.filter((f) => f.id !== 'tomi');
+  const tomi = FAMILY.find((f) => f.id === 'tomi');
   modal(`
     <div class="house">
       <h2>🏠 Casa de Giuli</h2>
@@ -53,7 +53,7 @@ export function openHouse() {
       <p class="muted center">Tocá a alguien para estar con él o ella.</p>
       <div class="opts">
         ${fam.map((f) => optBtn(`f_${f.id}`, f.icon, f.action, doneToday(f.id) ? 'Ya compartieron hoy. Mañana de nuevo 💛' : f.actionDesc, doneToday(f.id) ? '✓ Hoy' : f.tag, doneToday(f.id))).join('')}
-        ${optBtn('f_tommy', '🤍', `Un rato con ${tommy.name}`, 'Un lugar tranquilo para estar con tu hermano', '', false, 'soft')}
+        ${optBtn('f_tomi', '🤍', `Un rato con ${tomi.name}`, 'Un lugar tranquilo para estar con tu hermano', '', false, 'soft')}
         ${optBtn('f_dogs', '🐾', 'Jugar con Piti y Catalina', dogs ? 'Ya jugaron hoy. Están rendidos 😴' : 'Pelotita en el patio', dogs ? '✓ Hoy' : '+100 aura', dogs)}
         ${optBtn('f_rest', '😴', 'Descansar en tu cuarto', rested ? 'Ya descansaste hoy' : 'Recuperás toda la vida', rested ? '✓ Hoy' : '❤️ 100%', rested)}
       </div>
@@ -62,13 +62,13 @@ export function openHouse() {
   drawPortraits($('#modal'));
   $$('#modal .fam').forEach((b) => (b.onclick = () => {
     const id = b.dataset.who;
-    if (id === 'tommy') return openTommy();
+    if (id === 'tomi') return openTomi();
     if (id === 'giuli') { toast('Ese sos vos, crack 😎'); return; }
     if (id === 'piti' || id === 'catalina') return;
     const f = FAMILY.find((x) => x.id === id);
     talk(f);
   }));
-  $('#o_f_tommy').onclick = openTommy;
+  $('#o_f_tomi').onclick = openTomi;
   for (const f of fam) { const el = $(`#o_f_${f.id}`); if (el) el.onclick = () => talk(f, true); }
   $('#o_f_dogs').onclick = () => {
     markToday('dogs');
@@ -113,14 +113,14 @@ function talk(f, doAction = false) {
   if (doAction && can) $('#o_t_do').classList.add('pulse');
 }
 
-// ---------------- espacio con Tommy ----------------
-export function openTommy() {
-  const t = FAMILY.find((f) => f.id === 'tommy');
+// ---------------- espacio con Tomi ----------------
+export function openTomi() {
+  const t = FAMILY.find((f) => f.id === 'tomi');
   const fam = S.fam || { notes: [], lines: [] };
   const memory = fam.lines.length ? pick(fam.lines) : null;
   modal(`
-    <div class="tommy">
-      <div class="tommy-scene"><canvas id="tscene" width="320" height="150"></canvas></div>
+    <div class="tomi">
+      <div class="tomi-scene"><canvas id="tscene" width="320" height="150"></canvas></div>
       <h2 class="center">🤍 Un rato con ${esc(t.name)}</h2>
       ${memory ? `<div class="bubble soft">⭐ Cosas de ${esc(t.name)}<br><b>"${esc(memory.text)}"</b></div>` : `<p class="center muted">${esc(t.name)} está acá, con vos. Tomate el tiempo que quieras.</p>`}
       <div class="opts">
@@ -132,22 +132,22 @@ export function openTommy() {
       <p class="tiny muted center">Todo lo que escribas acá queda guardado solo en tu celu.</p>
       <button class="btn ghost wide" id="tm_back">↩️ Volver a la casa</button>
     </div>`);
-  drawTommyScene(false);
+  drawTomiScene(false);
   $('#tm_back').onclick = openHouse;
   $('#o_tm_write').onclick = writeNote;
   $('#o_tm_read').onclick = readNotes;
   $('#o_tm_lines').onclick = editLines;
-  $('#o_tm_hug').onclick = () => { drawTommyScene(true); };
+  $('#o_tm_hug').onclick = () => { drawTomiScene(true); };
 }
 
 let sceneRaf = 0;
-function drawTommyScene(hug) {
+function drawTomiScene(hug) {
   cancelAnimationFrame(sceneRaf);
   const c = $('#tscene');
   if (!c) return;
   const ctx = c.getContext('2d');
   ctx.imageSmoothingEnabled = false;
-  const t = FAMILY.find((f) => f.id === 'tommy');
+  const t = FAMILY.find((f) => f.id === 'tomi');
   const start = performance.now();
   const hearts = [];
   const loop = (now) => {
@@ -159,6 +159,10 @@ function drawTommyScene(hug) {
     g.addColorStop(0, '#f4a261'); g.addColorStop(0.55, '#e9c46a'); g.addColorStop(0.56, '#5a9e4b'); g.addColorStop(1, '#40804a');
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = '#ffe8a3'; ctx.beginPath(); ctx.arc(w * 0.8, h * 0.42, 18, 0, Math.PI * 2); ctx.fill();
+    // palos a lo lejos y una pelota en el pasto
+    ctx.fillStyle = '#ffffffcc'; ctx.fillRect(w * 0.12, h * 0.22, 3, h * 0.36); ctx.fillRect(w * 0.12 + 26, h * 0.22, 3, h * 0.36); ctx.fillRect(w * 0.12, h * 0.42, 29, 3);
+    ctx.fillStyle = '#f1e3c8'; ctx.beginPath(); ctx.ellipse(w * 0.72, h - 14, 9, 6, -0.3, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#8b5a2b'; ctx.lineWidth = 1.5; ctx.stroke();
     const sc = 4;
     const cx = w / 2;
     const near = hug ? Math.max(0, 1 - el * 1.2) : 1; // 1 = separados, 0 = juntos
@@ -168,11 +172,12 @@ function drawTommyScene(hug) {
     const meS = playerSprite(St.look(), dirMe, 0);
     const himS = playerSprite(t.look, dirHim, 0);
     ctx.drawImage(meS, cx - off - 8 * sc, h - 22 * sc - 4, 16 * sc, 22 * sc);
-    ctx.drawImage(himS, cx + off - 8 * sc, h - 22 * sc - 4, 16 * sc, 22 * sc);
+    const ts = sc * (t.look.tall || 1);
+    ctx.drawImage(himS, cx + off - 8 * ts, h - 22 * ts - 4, 16 * ts, 22 * ts);
     if (hug && near === 0) {
       // brazos sobre los hombros
       ctx.fillStyle = '#f4cdb0';
-      ctx.fillRect(cx - off + 5 * sc, h - 22 * sc - 4 + 12 * sc, (off * 2 - 10 * sc), sc);
+      ctx.fillRect(cx - off + 5 * sc, h - 22 * sc - 4 + 11 * sc, (off * 2 - 9 * sc), sc);
     }
     const gap = hug ? near * 70 : 70;
     if (hug && gap === 0) {
@@ -191,56 +196,56 @@ function drawTommyScene(hug) {
 }
 
 function writeNote() {
-  const t = FAMILY.find((f) => f.id === 'tommy');
+  const t = FAMILY.find((f) => f.id === 'tomi');
   modal(`
-    <div class="tommy">
+    <div class="tomi">
       <h2>✍️ Para ${esc(t.name)}</h2>
       <textarea id="tm_text" rows="7" maxlength="2000" placeholder="Hola ${esc(t.name)}..."></textarea>
       <div class="row"><button class="btn ghost" id="tm_cancel">Volver</button><button class="btn good" id="tm_save">Guardar</button></div>
     </div>`);
   setTimeout(() => $('#tm_text')?.focus(), 50);
-  $('#tm_cancel').onclick = openTommy;
+  $('#tm_cancel').onclick = openTomi;
   $('#tm_save').onclick = () => {
     const text = $('#tm_text').value.trim();
-    if (!text) return openTommy();
+    if (!text) return openTomi();
     S.fam = S.fam || { notes: [], lines: [] };
     S.fam.notes.push({ t: Date.now(), text });
     St.save();
     toast(`Guardado 🤍`);
-    openTommy();
+    openTomi();
   };
 }
 
 function readNotes() {
-  const t = FAMILY.find((f) => f.id === 'tommy');
+  const t = FAMILY.find((f) => f.id === 'tomi');
   const notes = [...(S.fam?.notes || [])].reverse();
   modal(`
-    <div class="tommy">
+    <div class="tomi">
       <h2>📖 Lo que le conté a ${esc(t.name)}</h2>
       <div class="notes">${notes.map((n) => `<div class="note"><small>${new Date(n.t).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</small><p>${esc(n.text).replace(/\n/g, '<br>')}</p><button class="btn sm ghost" data-del="${n.t}">Borrar</button></div>`).join('')}</div>
       <button class="btn ghost wide" id="tm_back2">↩️ Volver</button>
     </div>`);
-  $('#tm_back2').onclick = openTommy;
+  $('#tm_back2').onclick = openTomi;
   $$('#modal [data-del]').forEach((b) => (b.onclick = () => {
     if (!confirm('¿Borrar este mensaje?')) return;
     S.fam.notes = S.fam.notes.filter((n) => n.t !== +b.dataset.del);
     St.save();
-    S.fam.notes.length ? readNotes() : openTommy();
+    S.fam.notes.length ? readNotes() : openTomi();
   }));
 }
 
 function editLines() {
-  const t = FAMILY.find((f) => f.id === 'tommy');
+  const t = FAMILY.find((f) => f.id === 'tomi');
   const lines = S.fam?.lines || [];
   modal(`
-    <div class="tommy">
+    <div class="tomi">
       <h2>⭐ Cosas de ${esc(t.name)}</h2>
       <p class="muted">Frases que decía, chistes, consejos, recuerdos. Cuando entres a estar con él, va a aparecer una.</p>
       <div class="notes">${lines.map((l) => `<div class="note"><p>"${esc(l.text)}"</p><button class="btn sm ghost" data-dl="${l.t}">Borrar</button></div>`).join('') || '<p class="muted center">Todavía no agregaste ninguna.</p>'}</div>
       <textarea id="tm_line" rows="2" maxlength="300" placeholder="Ej: una frase que siempre te decía"></textarea>
       <div class="row"><button class="btn ghost" id="tm_back3">Volver</button><button class="btn good" id="tm_add">Agregar</button></div>
     </div>`);
-  $('#tm_back3').onclick = openTommy;
+  $('#tm_back3').onclick = openTomi;
   $('#tm_add').onclick = () => {
     const text = $('#tm_line').value.trim();
     if (!text) return;

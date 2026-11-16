@@ -32,6 +32,12 @@ Se acumula y tiene rangos: NPC 💀 → Normal → Con flow → Aura farmer → 
 - Hay tres jefes: **El Pilar Rival** (en el club), **El Final de Análisis** (en la facu) y el jefe final, **El Giuli de Ayer** (en la plaza).
 - Minijuegos: Patadas a los palos, Corrida al try y Scrum (en el club), Press de banca (en el gym) y Trivia (en la facu).
 
+## Casa, club y partido
+- **Casa:** Cecilia, Marco, Tomi y Feli. Charlar con mamá, el café con papá y jugar con Feli te curan. Tomi tiene su propio espacio tranquilo.
+- **Club Universitario por dentro:** cancha con tus compañeros (charlas sobre egresados, el partido, el entrenamiento y el tercer tiempo), el entrenador y estaciones: patadas a los palos, corrida al try, pases de medio scrum, máquina de scrum, line y tackle.
+- **Gym (adentro del club):** press de banca, sentadilla, peso muerto, dominadas, cinta, soga, cajón y mancuernas. Cada uno con su propia mecánica.
+- **Partido:** se juega en horizontal, dos tiempos de 2½ minutos y vos sos el 9. Hay pases, tackles, rucks, scrum, line, patadas, penales, conversiones y tries.
+
 ## Controles
 - **Celular:** joystick abajo a la izquierda y botón **A** para hablar o entrar.
 - **Compu:** flechas o WASD, y Espacio o E.
