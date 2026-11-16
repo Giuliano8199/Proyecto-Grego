@@ -12,12 +12,12 @@ const K = 0.62; // aplastamiento vertical (vista 2.5D)
 const N = 15;
 const NUMS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 const FWD = (i) => i < 8;
-const SPEED = [5.7, 6.0, 5.7, 5.9, 5.9, 6.4, 6.5, 6.3, 6.8, 6.9, 7.6, 7.0, 7.1, 7.6, 7.3];
+const SPEED = [5.7, 6.0, 5.7, 5.9, 5.9, 6.4, 6.5, 6.3, 6.8, 6.9, 7.6, 7.0, 7.1, 7.6, 7.3].map((v) => v * 0.8);
 const POWER = [1.25, 1.1, 1.25, 1.15, 1.15, 1.1, 1.05, 1.15, 0.85, 0.9, 0.85, 1.0, 0.95, 0.85, 0.9];
 const DIFFS = {
-  facil: { name: 'Fácil', tackle: 0.42, speed: 0.92, ko: 0.06, pass: 0.7, k: 0.7 },
-  normal: { name: 'Normal', tackle: 0.55, speed: 1.0, ko: 0.04, pass: 0.85, k: 1 },
-  dificil: { name: 'Difícil', tackle: 0.68, speed: 1.06, ko: 0.025, pass: 1.0, k: 1.4 },
+  facil: { name: 'Fácil', tackle: 0.32, speed: 0.92, ko: 0.06, pass: 0.7, k: 0.7 },
+  normal: { name: 'Normal', tackle: 0.42, speed: 1.0, ko: 0.04, pass: 0.85, k: 1 },
+  dificil: { name: 'Difícil', tackle: 0.55, speed: 1.06, ko: 0.025, pass: 1.0, k: 1.4 },
 };
 const EXTRA_NAMES = ['Bauti', 'Fran', 'Nico', 'Lucho'];
 const ZONE_IDX = { adelante: 3, medio: 4, atras: 7 };
@@ -480,7 +480,7 @@ function contact(def, car) {
   let chance;
   if (def.userDive) chance = 0.78 + statLvl('fue') * 0.008;
   else if (def.state === 'dive') chance = def.team === 1 ? M.df.tackle : 0.5;
-  else chance = Math.hypot(car.vx, car.vy) < 3 ? 0.85 : 0.45;
+  else chance = Math.hypot(car.vx, car.vy) < 2.5 ? 0.75 : 0.35;
   chance *= def.power / car.power;
   if (car.team === 0 && car.sprint) chance -= 0.07;
   if (Math.random() < chance) tackle(def, car);
@@ -981,9 +981,9 @@ function aiMove(p, dt) {
   const sorted = defs.slice().sort((a, c) => dist(a, car) - dist(c, car));
   const userClose = M.ctrl && M.ctrl.team === p.team && up(M.ctrl) && dist(M.ctrl, car) < 4;
   const rank = sorted.indexOf(p);
-  if (rank > -1 && rank < (userClose ? 1 : 2) && ((p.x - car.x) * dA > -3 || dist(p, car) < 7)) {
+  if (rank > -1 && rank < 1 + (userClose ? 0 : (Math.floor(M.t / 4) % 2)) && ((p.x - car.x) * dA > -3 || dist(p, car) < 7)) {
     moveTo(p, car.x + car.vx * 0.3, car.y + car.vy * 0.3, p.speed * 1.03, dt);
-    if (dist(p, car) < 2.3 && car.inv <= 0 && Math.random() < dt * 6) dive(p, car);
+    if (dist(p, car) < 1.9 && car.inv <= 0 && Math.random() < dt * 3) dive(p, car);
     return;
   }
   const [tx, ty] = formTarget(p, car);
@@ -1138,7 +1138,7 @@ function update(dt) {
   if (M.crowd > 0) M.crowd -= dt;
   for (const l of M.log) l.t += dt;
   M.log = M.log.filter((l) => l.t < 5);
-  if (['play', 'tackle', 'ruck', 'kickoff'].includes(M.phase)) M.clock += dt * (2400 / M.halfReal);
+  if (['play', 'tackle', 'ruck', 'kickoff'].includes(M.phase) && !M.aim) M.clock += dt * (2400 / M.halfReal);
 
   switch (M.phase) {
     case 'kickoff':
@@ -1181,7 +1181,6 @@ function update(dt) {
           if ((M.aim.x - c.x) * d0 > 55) M.aim.x = c.x + d0 * 55;
           M.aim.y = clamp(M.aim.y, -6, 76);
           M.aim.t += dt;
-          if (M.aim.t > 3) { const a = M.aim; M.aim = null; M.input.kick = false; kickTo(c, a.x, a.y); }
         }
       }
       break;
@@ -1216,7 +1215,8 @@ function update(dt) {
     default: break;
   }
 
-  if (['play', 'kickoff', 'tackle', 'ruck', 'scrum', 'lineout', 'maul', 'try'].includes(M.phase)) {
+  const frozen = M.phase === 'play' && M.aim; // tiempo congelado para patear tranquilo
+  if (!frozen && ['play', 'kickoff', 'tackle', 'ruck', 'scrum', 'lineout', 'maul', 'try'].includes(M.phase)) {
     updatePlayers(dt);
     if (M.phase === 'play') updateBall(dt);
   }
@@ -1459,7 +1459,7 @@ function drawHUD(ctx) {
     const toPosts = 100 - a.x;
     const label = dk < 15 ? 'GRUBBER' : (toPosts < 3 && toPosts > -3 && Math.abs(a.y - 35) < 5) ? 'DROP' : a.y < 0 || a.y > 70 ? 'AL TOUCH' : dk > 35 ? 'PATADA LARGA' : 'CHIP';
     txt(ctx, `${label} · ${Math.round(dk)} m`, ax, ay - r * K - 8 * dpr, 8, '#fff');
-    txt(ctx, 'Mové el joystick para apuntar · soltá PATADA', w / 2, h * 0 + M.h * 0.62, 8, '#ffd166');
+    txt(ctx, '⏸ Tiempo congelado · apuntá con el joystick y soltá PATADA', w / 2, h * 0 + M.h * 0.62, 8, '#ffd166');
   }
   if (M.passHold && M.passHold.t > 0.28) txt(ctx, 'PASE LARGO', w / 2, M.h * 0.62, 9, '#4cc9f0');
   for (const f of M.fx) {
