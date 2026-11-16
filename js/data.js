@@ -434,17 +434,18 @@ const tee = (a, b = a) => ({ pattern: 'solid', a, b, n: a });
 const hoops = (a, b) => ({ pattern: 'hoops', a, b, n: '#ffffff' });
 const hair = (style, c, d) => ({ style, c, d });
 export const TEAMMATES = [
-  { id: 'tizot', name: 'Mateo Tizot', look: { jersey: U, hair: hair('corto', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#e53935', boots: { c: '#1b1b1b' } } },
+  { id: 'tizot', name: 'Mateo Tizot', short: 'Tizot', look: { jersey: U, hair: hair('corto', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#e53935', boots: { c: '#1b1b1b' } } },
   { id: 'mano', name: 'Mano', look: { jersey: tee('#2b2d42'), hair: hair('rapado', '#1b1b1b', '#000'), shorts: '#1b1b1b', socks: '#2b2d42', boots: { c: '#e9ecef' }, skin: '#e0b090', skinD: '#b8866a' } },
-  { id: 'ponce', name: 'Jero Ponce', look: { jersey: U, hair: hair('flequillo', '#6b4226', '#4a2c17'), shorts: '#f1f3f5', socks: '#e53935', boots: { c: '#e63946' } } },
-  { id: 'canolo', name: 'Genaro Cañolo', look: { jersey: tee('#6c757d'), hair: hair('largo', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#6c757d', boots: { c: '#1b1b1b' } } },
+  { id: 'ponce', name: 'Jero Ponce', short: 'Jero', look: { jersey: U, hair: hair('flequillo', '#6b4226', '#4a2c17'), shorts: '#f1f3f5', socks: '#e53935', boots: { c: '#e63946' } } },
+  { id: 'canolo', name: 'Genaro Cañolo', short: 'Gena', look: { jersey: tee('#6c757d'), hair: hair('largo', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#6c757d', boots: { c: '#1b1b1b' } } },
   { id: 'valendepa', name: 'Valendepa', look: { jersey: hoops('#2d6a4f', '#ffffff'), hair: hair('corto', '#8a6a3c', '#5e4527'), shorts: '#1b1b1b', socks: '#2d6a4f', boots: { c: '#b5e48c' } } },
   { id: 'mosquito', name: 'Mosquito', look: { jersey: U, hair: hair('mohicano', '#1b1b1b', '#000'), shorts: '#1b1b1b', socks: '#e53935', boots: { c: '#ffd60a' } } },
-  { id: 'cava', name: 'Gordo Cava', look: { jersey: tee('#1b1b1b'), hair: hair('rapado', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#1b1b1b', boots: { c: '#1b1b1b' }, beard: '#3b2a1e' } },
+  { id: 'cava', name: 'Gordo Cava', short: 'Cava', look: { jersey: tee('#1b1b1b'), hair: hair('rapado', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#1b1b1b', boots: { c: '#1b1b1b' }, beard: '#3b2a1e' } },
   { id: 'augusto', name: 'Augusto', look: { jersey: hoops('#1d3557', '#a8dadc'), hair: hair('corto', '#c9a227', '#9e7e1c'), shorts: '#f1f3f5', socks: '#1d3557', boots: { c: '#1b1b1b' } } },
   { id: 'molina', name: 'Molina', look: { jersey: U, hair: hair('corto', '#1b1b1b', '#000'), shorts: '#f1f3f5', socks: '#e53935', boots: { c: '#1b1b1b' }, skin: '#d9a87e', skinD: '#b8866a' } },
   { id: 'rocha', name: 'Rocha', look: { jersey: tee('#e9ecef', '#ced4da'), hair: hair('flequillo', '#3b2a1e', '#241a12'), shorts: '#1b1b1b', socks: '#e9ecef', boots: { c: '#3a86ff' } } },
   { id: 'calvo', name: 'Calvo', look: { jersey: hoops('#6a040f', '#ffba08'), hair: hair('rapado', '#6b4226', '#4a2c17'), shorts: '#1b1b1b', socks: '#6a040f', boots: { c: '#1b1b1b' } } },
+  { id: 'bachi', name: 'Bachi', look: { jersey: U, hair: hair('flequillo', '#6b4226', '#4a2c17'), shorts: '#f1f3f5', socks: '#e53935', boots: { c: '#1b1b1b' } } },
   { id: 'justo', name: 'Justo', look: { jersey: U, hair: hair('largo', '#8a6a3c', '#5e4527'), shorts: '#1b1b1b', socks: '#e53935', boots: { c: '#e9ecef' } } },
 ];
 

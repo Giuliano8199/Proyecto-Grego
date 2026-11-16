@@ -463,7 +463,7 @@ function customModal(cat) {
 export function settingsModal() {
   modal(`
     <h2>⚙️ Ajustes</h2>
-    <p class="muted tiny">Versión del juego: 8 (con partido XV)</p>
+    <p class="muted tiny">Versión del juego: 10 (partido organizado + patada apuntada)</p>
     <label class="toggle"><input type="checkbox" id="ssound" ${S.settings.sound ? 'checked' : ''}> Efectos de sonido</label>
     <label class="toggle"><input type="checkbox" id="smusic" ${S.settings.music ? 'checked' : ''}> Música</label>
     <h3>Copia de seguridad</h3>
