@@ -8,6 +8,8 @@ export const PLAYER = {
   fullName: 'Giuliano Cicconi',
   position: 'Medio Scrum',
   number: 9,
+  club: 'Club Universitario',
+  clubShort: 'La U',
 };
 
 export const STATS = {
@@ -228,7 +230,7 @@ export const ZONES = {
   barrio: { name: 'El Barrio', monsters: ['duda', 'excusa', 'chatarra', 'procrastinacion'] },
   plaza: { name: 'La Plaza', monsters: ['ansiedad', 'duda'] },
   gym: { name: 'El Gym', monsters: ['chatarra', 'excusa', 'sillon'] },
-  club: { name: 'El Club', monsters: ['miedo', 'ansiedad', 'excusa'] },
+  club: { name: 'Club Universitario', monsters: ['miedo', 'ansiedad', 'excusa'] },
   facu: { name: 'La Facultad', monsters: ['parcial', 'duda', 'procrastinacion', 'cliente'] },
   cole: { name: 'Colegio Fátima', monsters: [] },
 };
@@ -253,8 +255,9 @@ export const CONSUMABLES = [
 // Cosméticos (skins). slot: jersey | head | hair | boots | pet
 export const COSMETICS = [
   // Camisetas
-  { id: 'club', slot: 'jersey', name: 'Club (aros rojo y blanco)', price: 0, look: { pattern: 'hoops', a: '#d62828', b: '#ffffff', n: '#1b1b1b' } },
-  { id: 'club2', slot: 'jersey', name: 'Club (bastones rojo y blanco)', price: 0, look: { pattern: 'vstripes', a: '#d62828', b: '#ffffff', n: '#1b1b1b' } },
+  { id: 'club', slot: 'jersey', name: 'Universitario (cuartos rojo y blanco)', price: 0, look: { pattern: 'quarters', a: '#e53935', b: '#ffffff', n: '#1b1b1b' } },
+  { id: 'club2', slot: 'jersey', name: 'Aros rojo y blanco', price: 0, look: { pattern: 'hoops', a: '#e53935', b: '#ffffff', n: '#1b1b1b' } },
+  { id: 'club3', slot: 'jersey', name: 'Bastones rojo y blanco', price: 60, look: { pattern: 'vstripes', a: '#e53935', b: '#ffffff', n: '#1b1b1b' } },
   { id: 'clubalt', slot: 'jersey', name: 'Alternativa blanca', price: 150, look: { pattern: 'solid', a: '#f8f9fa', b: '#d62828', n: '#d62828' } },
   { id: 'entreno', slot: 'jersey', name: 'Remera de entreno', price: 80, look: { pattern: 'solid', a: '#6c757d', b: '#495057', n: '#fff' } },
   { id: 'albiceleste', slot: 'jersey', name: 'Albiceleste', price: 300, look: { pattern: 'vstripes', a: '#74c0fc', b: '#ffffff', n: '#1d3557' } },
@@ -270,6 +273,7 @@ export const COSMETICS = [
   { id: 'auris', slot: 'head', name: 'Auriculares', price: 200 },
   { id: 'corona', slot: 'head', name: 'Corona de Aura', price: 0, unlock: 'aura_100k' },
   // Peinados
+  { id: 'giuli', slot: 'hair', name: 'El de Giuli (ondulado)', price: 0, look: { style: 'giuli', c: '#7a5638', d: '#4e3524', l: '#b08a5e' } },
   { id: 'corto', slot: 'hair', name: 'Corto castaño', price: 0, look: { style: 'corto', c: '#6b4226', d: '#4a2c17' } },
   { id: 'flequillo', slot: 'hair', name: 'Flequillo', price: 100, look: { style: 'flequillo', c: '#6b4226', d: '#4a2c17' } },
   { id: 'largo', slot: 'hair', name: 'Pelo largo', price: 120, look: { style: 'largo', c: '#6b4226', d: '#4a2c17' } },
@@ -380,6 +384,8 @@ export const COACH_TIPS = [
   'Entrenador: "Si fallás un pase, el próximo lo das el doble de rápido."',
   'Entrenador: "Hablá con tus forwards. Que te escuchen desde la otra punta."',
   'Entrenador: "El aura no se compra. Se gana en la cancha y en la vida."',
+  'Entrenador: "Todo rojo y blanco, Giuli. La U se defiende en cada tackle."',
+  'Entrenador: "Desde 1907 este club se banca todo. Vos también."',
 ];
 export const DOG_LINES = {
   piti: ['Piti mueve la colita a mil 🌭', 'Piti te mira con ojitos de "¿salimos?"', 'Piti se tira panza arriba. Pedido de mimos.'],

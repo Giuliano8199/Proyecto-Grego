@@ -32,7 +32,7 @@ const P_UP = [
   '...HHHHHHHHHH...',
   '...HHHHHHHHHH...',
   '...HHHHHHHHHH...',
-  '...hHHHHHHHHh...',
+  '...HHHHHHHHHH...',
   '...ShhhhhhhhS...',
   '....SSSSSSSS....',
   '.....ssSSss.....',
@@ -305,7 +305,29 @@ function shade(hex, f) {
 function applyHair(tpl, style, dir) {
   const t = tpl.map((r) => r.split(''));
   const set = (x, y, ch) => { if (t[y] && t[y][x] !== undefined) t[y][x] = ch; };
-  if (style === 'rapado') {
+  if (style === 'giuli') {
+    if (dir === 'down') {
+      // costados hasta la oreja
+      for (const x of [2, 13]) for (let y = 2; y <= 7; y++) set(x, y, 'H');
+      set(2, 8, 'h'); set(13, 8, 'h');
+      // flequillo barrido hacia un costado
+      for (let x = 3; x <= 10; x++) set(x, 3, 'H');
+      set(9, 4, 'H'); set(10, 4, 'H'); set(11, 4, 'h');
+      // reflejo claro siguiendo el barrido
+      set(5, 1, 'L'); set(6, 1, 'L'); set(7, 2, 'L'); set(8, 2, 'L'); set(9, 3, 'L');
+    } else if (dir === 'up') {
+      for (const x of [2, 13]) for (let y = 2; y <= 8; y++) set(x, y, 'H');
+      for (let x = 3; x <= 12; x++) { set(x, 7, 'H'); set(x, 8, 'h'); }
+      for (let x = 5; x <= 10; x++) set(x, 9, 'h');
+      set(5, 1, 'L'); set(6, 1, 'L'); set(7, 2, 'L'); set(8, 3, 'L');
+    } else {
+      for (let y = 3; y <= 9; y++) set(3, y, 'H');
+      for (let y = 7; y <= 9; y++) set(4, y, 'h');
+      for (let x = 8; x <= 12; x++) set(x, 3, 'H');
+      set(12, 4, 'h');
+      set(6, 1, 'L'); set(7, 2, 'L'); set(8, 2, 'L'); set(9, 3, 'L');
+    }
+  } else if (style === 'rapado') {
     for (let x = 0; x < 16; x++) { if (t[0][x] === 'H') t[0][x] = '.'; }
     if (dir !== 'up') for (let x = 0; x < 16; x++) { if (t[1][x] === 'H') t[1][x] = '.'; }
   } else if (style === 'largo') {
@@ -341,16 +363,17 @@ export function playerSprite(look, dir = 'down', frame = 0, mode = null) {
     tpl = [...tpl.slice(0, 17), ...legs];
     const j = look.jersey || { pattern: 'hoops', a: '#d62828', b: '#fff', n: '#1b1b1b' };
     let pal = {
-      H: look.hair?.c || '#6b4226', h: look.hair?.d || '#4a2c17',
-      S: '#f2cba8', s: '#d9a882', E: '#2b1d14', M: '#b5655b',
+      H: look.hair?.c || '#6b4226', h: look.hair?.d || '#4a2c17', L: look.hair?.l || look.hair?.c || '#a07a50',
+      S: '#f4cdb0', s: '#dfab8c', E: '#3d5a6c', M: '#c27a72',
       P: '#f1f3f5', p: '#ced4da', K: j.a, O: look.boots?.c || '#1b1b1b',
     };
     if (mode === 'rival') {
-      pal = { ...pal, H: '#1b1b1b', h: '#000', S: '#c68642', s: '#a0522d', P: '#1d3557', p: '#14213d', K: '#ffd60a', O: '#111' };
+      pal = { ...pal, H: '#1b1b1b', h: '#000', L: '#1b1b1b', S: '#c68642', s: '#a0522d', P: '#1d3557', p: '#14213d', K: '#ffd60a', O: '#111' };
     }
     const jersey = (x, y) => {
       if (mode === 'rival') return (Math.floor((y - 10) / 2) % 2 === 0) ? '#1d3557' : '#ffd60a';
       switch (j.pattern) {
+        case 'quarters': return ((x < 8) === (y < 13)) ? j.a : j.b;
         case 'hoops': return (Math.floor((y - 10) / 2) % 2 === 0) ? j.a : j.b;
         case 'vstripes': return (Math.floor(x / 2) % 2 === 0) ? j.a : j.b;
         case 'halves': return x < 8 ? j.a : j.b;

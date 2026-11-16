@@ -19,7 +19,7 @@ export function defaultState() {
     inv: { mate: 2, alfajor: 2 },
     owned: COSMETICS.filter((c) => c.price === 0 && !c.unlock).map((c) => c.id),
     bought: 0,
-    equip: { jersey: 'club', head: 'none', hair: 'corto', boots: 'negros', pet: 'ambos' },
+    equip: { jersey: 'club', head: 'none', hair: 'giuli', boots: 'negros', pet: 'ambos' },
     ach: {}, defeated: {}, wins: 0, losses: 0,
     weekClaims: {}, seasonClaims: {}, custom: [],
     lastDay: dayKey(), restDay: null, petDay: {},
@@ -51,6 +51,10 @@ export function load() {
   }
   // asegurar cosméticos gratis nuevos
   for (const c of COSMETICS) if (c.price === 0 && !c.unlock && !S.owned.includes(c.id)) S.owned.push(c.id);
+  if (!S.seen.look2) {
+    S.seen.look2 = true;
+    if (S.equip.hair === 'corto') S.equip.hair = 'giuli';
+  }
   dailyTick();
   S.hp = Math.min(S.hp, maxHp());
   S.energy = Math.min(S.energy, maxEnergy());

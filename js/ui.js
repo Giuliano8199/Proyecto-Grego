@@ -8,6 +8,16 @@ import { playerSprite, dogSprite } from './pixel.js';
 import { sfx } from './audio.js';
 import { $, $$, fmt, signed, esc, timeAgo, dayKey } from './util.js';
 
+// Escudo del club (dibujado en SVG)
+export function crest(size = 40) {
+  return `<svg class="crest" width="${size}" height="${size * 1.15}" viewBox="0 0 100 115" aria-label="Escudo Club Universitario">
+    <path d="M10 8 Q30 2 50 4 Q70 2 90 8 Q86 14 90 22 L90 62 Q90 92 50 110 Q10 92 10 62 L10 22 Q14 14 10 8 Z" fill="#fff" stroke="#14141a" stroke-width="7" stroke-linejoin="round"/>
+    <rect x="13" y="40" width="74" height="20" fill="#e53935"/>
+    <path d="M30 20 h16 v6 h-4 v32 q0 12 8 12 q8 0 8 -12 v-32 h-4 v-6 h16 v6 h-4 v32 q0 22 -20 22 q-20 0 -20 -22 v-32 h-4 z" fill="#14141a"/>
+    <text x="50" y="98" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#14141a">1907</text>
+  </svg>`;
+}
+
 export const ui = { tab: 'home', cat: 'rugby', shopTab: 'consumables' };
 
 // ---------------- barra superior ----------------
@@ -74,14 +84,15 @@ function homeHTML() {
   return `
   <section class="season ${se.type}">
     <div><b>${se.short}</b><span>${esc(se.name)}</span></div>
+    ${se.type === 'temporada' ? `<div class="todo-rojo">${crest(22)} #TodoRojoYBlanco</div>` : ''}
     <p>${esc(se.desc)}</p>
   </section>
 
   <section class="card hero">
     <div class="portrait"><canvas id="portrait" width="200" height="240"></canvas></div>
     <div class="hero-info">
-      <h1>${PLAYER.name} <small>#${PLAYER.number}</small></h1>
-      <div class="sub">${PLAYER.position} · Nivel ${St.level()}</div>
+      <div class="name-row"><h1>${PLAYER.name} <small>#${PLAYER.number}</small></h1>${crest(30)}</div>
+      <div class="sub">${PLAYER.position} · ${PLAYER.club} · Nivel ${St.level()}</div>
       <div class="aura-rank" style="--c:${rk.color}">
         <div class="ar-top"><span>🗿 ${esc(rk.name)}</span><b>${fmt(S.aura)}</b></div>
         <div class="bar"><i style="width:${(pctNext * 100).toFixed(1)}%;background:${rk.color}"></i></div>

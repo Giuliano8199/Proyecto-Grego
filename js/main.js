@@ -3,7 +3,7 @@
 // =============================================================
 import * as St from './state.js';
 import { S } from './state.js';
-import { ui, render, renderNav, renderTop, setGoTab, modal, closeModal, toast, onGains, onLevelUp, onAchievement, onAuraRank } from './ui.js';
+import { crest, ui, render, renderNav, renderTop, setGoTab, modal, closeModal, toast, onGains, onLevelUp, onAchievement, onAuraRank } from './ui.js';
 import { initWorld, startWorld, stopWorld, resizeWorld, bindJoystick, removeMonster, worldSay, teleportHome } from './world.js';
 import { startBattle } from './battle.js';
 import { kicks, tryRun, mash, trivia } from './minigames.js';
@@ -119,8 +119,8 @@ function onDoor(id) {
     club: () => {
       const se = St.season();
       modal(`
-        <h2>🏉 El Club</h2>
-        <p>${se.type === 'vacaciones' ? 'Pretemporada: la cancha está libre para practicar.' : 'Temporada en marcha. ¡Se juega el sábado!'}</p>
+        <div class="intro-crest">${crest(48)}</div><h2>🏉 Club Universitario</h2>
+        <p>${se.type === 'vacaciones' ? 'Pretemporada: la cancha está libre para practicar.' : 'Temporada en marcha. ¡Todo rojo y blanco, se juega el sábado!'}</p>
         <div class="opts">
           <button class="btn big" id="o1">🦶 Patadas a los palos (1 ⚡)</button>
           <button class="btn big" id="o2">🏃 Corrida al try (1 ⚡)</button>
@@ -169,6 +169,7 @@ function onDoor(id) {
 function intro() {
   if (S.seen.intro) return;
   modal(`
+    <div class="intro-crest">${crest(56)}</div>
     <h2>¡Bienvenido, ${PLAYER.name}! 🏉</h2>
     <p>Esto es tu vida convertida en juego.</p>
     <ol class="intro">

@@ -93,7 +93,7 @@ function build() {
 
   // ---- CLUB DE RUGBY (abajo a la derecha)
   zone(33, 25, 30, 22, 'club');
-  building(34, 26, 8, 5, 'club', 'CLUB', '#d62828');
+  building(34, 26, 8, 5, 'club', 'LA U', '#e53935');
   rect(34, 32, 28, 15, FENCE);
   fill(35, 33, 26, 13, PITCH);
   // líneas: try, 22, mitad
