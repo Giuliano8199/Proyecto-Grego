@@ -112,6 +112,12 @@ function homeHTML() {
     <button class="btn big" data-go="missions">📋 Cargar lo que hice</button>
   </section>
 
+  <section class="card play-card">
+    <h2>🏟️ Partido</h2>
+    <p class="muted">Universitario 15 contra 15. Vos sos el 9. Se juega en horizontal.</p>
+    <button class="btn big gold" data-act="match">🏉 JUGAR PARTIDO</button>
+  </section>
+
   <section class="card">
     <h2>Stats</h2>
     <div class="stats">${statBars()}</div>
@@ -392,6 +398,7 @@ function bindScreen() {
     if (d.equip) { St.equip(d.equip); sfx('click'); return; }
     if (d.delc) { if (confirm('¿Borrar esta misión?')) St.removeCustom(d.delc); return; }
     if (d.act === 'settings') return settingsModal();
+    if (d.act === 'match') return import('./match.js').then((m) => m.startMatch(() => render()));
     if (d.act === 'newcustom') return customModal(d.cat);
   };
   if (ui.tab === 'home') animatePortrait();
@@ -456,6 +463,7 @@ function customModal(cat) {
 export function settingsModal() {
   modal(`
     <h2>⚙️ Ajustes</h2>
+    <p class="muted tiny">Versión del juego: 8 (con partido XV)</p>
     <label class="toggle"><input type="checkbox" id="ssound" ${S.settings.sound ? 'checked' : ''}> Efectos de sonido</label>
     <label class="toggle"><input type="checkbox" id="smusic" ${S.settings.music ? 'checked' : ''}> Música</label>
     <h3>Copia de seguridad</h3>

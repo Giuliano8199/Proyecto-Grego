@@ -48,20 +48,24 @@ export function startMatch(onEnd) {
         <div class="pm-row">${[[120, '2×2 min'], [150, '2×2½ min'], [240, '2×4 min']].map(([v, n]) => `<button class="pm-chip ${v === sel.len ? 'on' : ''}" data-l="${v}">${n}</button>`).join('')}</div>
         <div class="pm-help">🕹️ Correr (al máximo = sprint) · <b>PASE ▲▼</b> · <b>PATADA</b> mantener y soltar (corta = grubber) · <b>AMAGUE</b> · Al ser tackleado: <b>PASE</b> = offload · Defensa: <b>TACKLE</b> (cerca del ruck = robo) · <b>CAMBIAR</b></div>
         <div class="pm-energy">Tenés ⚡ ${S.energy}</div>
-        <button class="btn big" id="pmgo" ${S.energy < 3 ? 'disabled' : ''}>${S.energy < 3 ? 'Te falta energía (3 ⚡)' : '¡A LA CANCHA! (3 ⚡)'}</button>
+        ${S.energy >= 3 ? '<button class="btn big" id="pmgo">¡A LA CANCHA! (3 ⚡)</button>' : ''}
+        <button class="btn ${S.energy >= 3 ? 'ghost' : 'big'}" id="pmfree">🤝 Amistoso libre (sin energía, sin premios)</button>
       </div>`;
     ov.querySelectorAll('[data-r]').forEach((b) => (b.onclick = () => { sel.rival = +b.dataset.r; draw(); }));
     ov.querySelectorAll('[data-d]').forEach((b) => (b.onclick = () => { sel.diff = b.dataset.d; draw(); }));
     ov.querySelectorAll('[data-l]').forEach((b) => (b.onclick = () => { sel.len = +b.dataset.l; draw(); }));
     $('pmx').onclick = () => { ov.hidden = true; ov.innerHTML = ''; document.body.classList.remove('in-match'); onEnd?.('cancel'); };
-    $('pmgo').onclick = () => begin(sel, onEnd);
+    if ($('pmgo')) $('pmgo').onclick = () => begin(sel, onEnd, false);
+    $('pmfree').onclick = () => begin(sel, onEnd, true);
   };
   draw();
 }
 
-function begin(sel, onEnd) {
-  if (S.energy < 3) return;
-  S.energy -= 3; save(); emit('change');
+function begin(sel, onEnd, free = false) {
+  if (!free) {
+    if (S.energy < 3) return;
+    S.energy -= 3; save(); emit('change');
+  }
   const rival = RIVALS[sel.rival];
   const df = DIFFS[sel.diff];
   const diffScale = df.speed * clamp(0.97 + level() * 0.004, 0.97, 1.06);
@@ -69,7 +73,7 @@ function begin(sel, onEnd) {
   const cava = mates.findIndex((t) => t.id === 'cava');
   if (cava > 0) mates.unshift(mates.splice(cava, 1)[0]); // el Gordo Cava de pilar
   M = {
-    onEnd, rival, df, half: 1, halfReal: sel.len,
+    onEnd, rival, df, free, half: 1, halfReal: sel.len,
     teams: [
       { name: 'Universitario', short: 'LA U', d: 1, score: 0, col: '#e53935', tries: 0 },
       { name: rival.name, short: rival.short, d: -1, score: 0, col: rival.a, tries: 0 },
@@ -1510,16 +1514,19 @@ function endScreen() {
     aura: Math.round((win ? 1000 : tie ? 400 : 150) * k) + st.myTries * 1000 + st.tries * 200 + (mvp === 'Giuli' ? 500 : 0),
     stats: { fue: 4 + Math.min(10, st.tackles), res: 6, car: win ? 6 : 2, dis: 3 },
   };
-  S.matches = (S.matches || 0) + 1;
-  if (win) S.matchWins = (S.matchWins || 0) + 1;
-  S.best.matchDiff = Math.max(S.best.matchDiff ?? -99, t0.score - t1.score);
-  grant(reward, null, 'g', 'match');
+  if (M.free) { reward.xp = 0; reward.gold = 0; reward.aura = 0; reward.stats = {}; }
+  else {
+    S.matches = (S.matches || 0) + 1;
+    if (win) S.matchWins = (S.matchWins || 0) + 1;
+    S.best.matchDiff = Math.max(S.best.matchDiff ?? -99, t0.score - t1.score);
+    grant(reward, null, 'g', 'match');
+  }
   panel(`
     <div class="mp-t">${win ? '🏆 ¡GANÓ LA U!' : tie ? '🤝 EMPATE' : 'Perdimos esta vez'}</div>
     <div class="mp-score">${t0.short} <b>${t0.score}</b> - <b>${t1.score}</b> ${t1.short}</div>
     <div class="mp-s">⭐ Figura del partido: <b>${mvp}</b></div>
     <div class="mp-s">Tries ${st.tries} (tuyos ${st.myTries}) · Tackles ${st.tackles} · Pases ${st.passes} · Rupturas ${st.breaks} · Offloads ${st.offloads} · Robos ${st.steals} · ${Math.round(st.metres)} m</div>
-    <div class="mp-rew">+${fmt(reward.xp)} XP · +${fmt(reward.gold)} oro · +${fmt(reward.aura)} aura</div>
+    <div class="mp-rew">${M.free ? 'Amistoso libre: sin premios' : `+${fmt(reward.xp)} XP · +${fmt(reward.gold)} oro · +${fmt(reward.aura)} aura`}</div>
     <div class="mp-row"><button class="btn good" id="mend">Volver al club</button></div>`, () => { $('mend').onclick = () => finish(false); });
   sfx(win ? 'win' : 'lose');
 }
