@@ -1,5 +1,5 @@
 // Service worker: permite jugar sin internet
-const CACHE = 'giuli-rpg-v5';
+const CACHE = 'giuli-rpg-v6';
 const FILES = [
   './', './index.html', './css/style.css', './manifest.webmanifest',
   './js/main.js', './js/ui.js', './js/state.js', './js/data.js', './js/util.js',

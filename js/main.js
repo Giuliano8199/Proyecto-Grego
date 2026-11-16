@@ -213,7 +213,8 @@ function matchMenu() {
     <button class="btn ghost wide" data-close>Volver</button>`);
   $('#o_m1').onclick = () => {
     closeModal();
-    needEnergy(3, () => { pause(); startMatch(() => resume()); });
+    pause();
+    startMatch(() => resume());
   };
 }
 

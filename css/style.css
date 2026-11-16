@@ -343,3 +343,30 @@ body.in-match { overflow: hidden; }
 .howto ul { margin: 6px 0; padding-left: 18px; }
 .howto li { margin: 4px 0; }
 .howto small { color: var(--muted); }
+
+.mb.push { display: none; background: linear-gradient(180deg, #ff5a67, #c1121f); grid-column: span 2; width: 156px; height: 110px; font-size: 13px; }
+.mbtns.mash .mb { display: none; }
+.mbtns.mash .mb.push { display: block; }
+.prematch { position: absolute; inset: 0; overflow-y: auto; background: radial-gradient(circle at 50% 0%, #3a1218, #14182b 60%); padding: calc(12px + var(--safe-t)) 16px calc(16px + var(--safe-b)); display: flex; flex-direction: column; gap: 10px; max-width: 720px; margin: 0 auto; }
+.pm-head { display: flex; justify-content: space-between; align-items: center; font-family: var(--pix); font-size: 13px; color: var(--gold); }
+.pm-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+.pm-team { border-radius: 14px; padding: 14px 10px; text-align: center; background: linear-gradient(135deg, var(--c, #e53935) 50%, var(--d, #fff) 50%); border: 3px solid #0a0c18; box-shadow: 0 4px 0 #0a0c18; }
+.pm-team.u { --c: #e53935; --d: #ffffff; }
+.pm-team b { display: block; font-family: var(--pix); font-size: 10px; line-height: 1.5; color: #fff; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000; }
+.pm-team small { color: #fff; text-shadow: 1px 1px 0 #000; font-weight: 700; font-size: 11px; }
+.pm-vs { font-family: var(--pix); font-size: 16px; color: var(--gold); }
+.pm-sec { font-family: var(--pix); font-size: 9px; color: var(--muted); margin-top: 4px; }
+.pm-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.pm-chip { border: 2px solid #0a0c18; border-radius: 10px; padding: 9px 12px; background: var(--panel); font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 #0a0c18; border-left: 8px solid var(--c, var(--panel2)); }
+.pm-chip.on { background: var(--red); }
+.pm-help { background: #0d1020; border-radius: 12px; padding: 10px 12px; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.pm-help b { color: var(--text); }
+.pm-energy { text-align: center; font-weight: 800; color: #ffe066; }
+
+.prematch #pmgo { position: sticky; bottom: 0; box-shadow: 0 -8px 16px #14182b, 0 4px 0 #0a0c18; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .prematch { gap: 6px; padding-top: 8px; }
+  .pm-team { padding: 8px; }
+  .pm-help { font-size: 11.5px; padding: 6px 10px; }
+  .pm-chip { padding: 6px 10px; }
+}
