@@ -288,6 +288,7 @@ function intro() {
 // ---------------- iniciar ----------------
 goTab('home');
 intro();
+if (S.giftMsg) { setTimeout(() => toast(S.giftMsg), 800); delete S.giftMsg; St.save(); }
 setInterval(() => { const before = S.lastDay; St.dailyTick(); if (S.lastDay !== before) { St.save(); render(); } }, 60000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) St.saveNow(); else { St.dailyTick(); renderTop(); } });
 

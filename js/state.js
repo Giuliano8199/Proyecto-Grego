@@ -59,7 +59,8 @@ export function load() {
   }
   dailyTick();
   S.hp = Math.min(S.hp, maxHp());
-  S.energy = Math.min(S.energy, maxEnergy());
+  // regalo único: carga grande de energía
+  if (!S.seen.giftEnergy1) { S.seen.giftEnergy1 = true; S.energy = Math.max(S.energy, 50); S.giftMsg = '⚡ ¡Regalo! Te cargamos 50 de energía.'; }
   save();
 }
 
@@ -166,7 +167,9 @@ function applyGains(g, sign = 1) {
   S.gold = Math.max(0, S.gold + sign * (g.gold || 0));
   S.aura += sign * (g.aura || 0);
   if (g.stats) for (const [k, v] of Object.entries(g.stats)) S.statXp[k] = Math.max(0, (S.statXp[k] || 0) + sign * v);
-  S.energy = clamp(S.energy + sign * (g.energy || 0), 0, maxEnergy());
+  const de = sign * (g.energy || 0);
+  if (de > 0) S.energy = Math.max(S.energy, Math.min(maxEnergy(), S.energy + de));
+  else S.energy = Math.max(0, S.energy + de);
   S.hp = clamp(S.hp + sign * (g.hp || 0), 0, maxHp());
 }
 
