@@ -29,7 +29,7 @@ function drawPortraits(root = document) {
     }
     const f = FAMILY.find((x) => x.id === id);
     const s = famSprite(f);
-    const k = f.small ? 0.78 : 1;
+    const k = f.small ? 0.74 : f.look.big ? 1 : 0.93;
     const w = cv.width * k, h = cv.height * k;
     ctx.drawImage(s, (cv.width - w) / 2, cv.height - h, w, h);
   });

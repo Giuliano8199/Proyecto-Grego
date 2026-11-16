@@ -327,6 +327,24 @@ function applyHair(tpl, style, dir) {
       set(12, 4, 'h');
       set(6, 1, 'L'); set(7, 2, 'L'); set(8, 2, 'L'); set(9, 3, 'L');
     }
+  } else if (style === 'coleta') {
+    // pelo atado: más volumen atrás y colita
+    if (dir === 'down') {
+      for (const x of [2, 13]) for (let y = 3; y <= 6; y++) set(x, y, 'H');
+      set(4, 3, 'H'); set(5, 3, 'H'); set(10, 3, 'H'); set(11, 3, 'H');
+      set(5, 1, 'L'); set(6, 1, 'L'); set(9, 2, 'L');
+      set(14, 7, 'H'); set(14, 8, 'h'); set(14, 9, 'h');
+    } else if (dir === 'up') {
+      for (const x of [2, 13]) for (let y = 3; y <= 6; y++) set(x, y, 'H');
+      set(7, 7, 'h'); set(8, 7, 'h');
+      for (let y = 8; y <= 12; y++) { set(7, y, 'H'); set(8, y, 'H'); }
+      set(7, 13, 'h'); set(8, 13, 'L');
+      set(5, 1, 'L'); set(9, 2, 'L'); set(6, 4, 'L');
+    } else {
+      for (let y = 3; y <= 6; y++) set(3, y, 'H');
+      set(2, 6, 'H'); set(1, 7, 'H'); set(1, 8, 'H'); set(1, 9, 'h'); set(2, 7, 'h');
+      set(6, 1, 'L'); set(9, 2, 'L');
+    }
   } else if (style === 'rapado') {
     for (let x = 0; x < 16; x++) { if (t[0][x] === 'H') t[0][x] = '.'; }
     if (dir !== 'up') for (let x = 0; x < 16; x++) { if (t[1][x] === 'H') t[1][x] = '.'; }
@@ -364,8 +382,8 @@ export function playerSprite(look, dir = 'down', frame = 0, mode = null) {
     const j = look.jersey || { pattern: 'hoops', a: '#d62828', b: '#fff', n: '#1b1b1b' };
     let pal = {
       H: look.hair?.c || '#6b4226', h: look.hair?.d || '#4a2c17', L: look.hair?.l || look.hair?.c || '#a07a50',
-      S: '#f4cdb0', s: '#dfab8c', E: '#3d5a6c', M: '#c27a72',
-      P: '#f1f3f5', p: '#ced4da', K: j.a, O: look.boots?.c || '#1b1b1b',
+      S: look.skin || '#f4cdb0', s: look.skinD || '#dfab8c', E: look.eye || '#3d5a6c', M: '#c27a72',
+      P: look.shorts || '#f1f3f5', p: look.shorts ? shade(look.shorts, 0.8) : '#ced4da', K: look.socks || j.a, O: look.boots?.c || '#1b1b1b',
     };
     if (mode === 'rival') {
       pal = { ...pal, H: '#1b1b1b', h: '#000', L: '#1b1b1b', S: '#c68642', s: '#a0522d', P: '#1d3557', p: '#14213d', K: '#ffd60a', O: '#111' };
@@ -377,6 +395,9 @@ export function playerSprite(look, dir = 'down', frame = 0, mode = null) {
         case 'hoops': return (Math.floor((y - 10) / 2) % 2 === 0) ? j.a : j.b;
         case 'vstripes': return (Math.floor(x / 2) % 2 === 0) ? j.a : j.b;
         case 'halves': return x < 8 ? j.a : j.b;
+        case 'print': if (vdir !== 'down') return j.a; return (y >= 11 && y <= 13 && x >= 5 && x <= 10) ? (y === 11 || x === 5 || x === 10 ? (j.c || j.n) : j.b) : j.a;
+        case 'rose': if (vdir !== 'down') return j.a; return (y >= 12 && y <= 13 && x >= 7 && x <= 9) ? ((x + y) % 2 ? j.b : '#2d6a4f') : (y === 11 && x >= 6 && x <= 10 ? (j.c || j.n) : j.a);
+        case 'vneck': if (vdir === 'up') return j.a; return (y === 10 && (x === 7 || x === 8)) || (y === 11 && (x === 7 || x === 8)) ? (look.skin || '#f4cdb0') : j.a;
         default: return (y === 10 || y === 11) && (x === 3 || x === 12) ? j.b : j.a;
       }
     };
@@ -394,6 +415,22 @@ export function playerSprite(look, dir = 'down', frame = 0, mode = null) {
     const flip = dir === 'left';
     drawTpl(ctx, tpl, 0, 2, fn, flip);
     if (mode) return; // rivales y sombra sin accesorios
+    const pp = (x, y, c) => { ctx.fillStyle = c; ctx.fillRect(flip ? 15 - x : x, y + 2, 1, 1); };
+    if (look.beard) {
+      const b = look.beard;
+      if (vdir === 'down') {
+        pp(3, 7, b); pp(12, 7, b);
+        for (const x of [4, 5, 6, 9, 10, 11]) pp(x, 8, b);
+        pp(6, 7, b); pp(7, 7, b); pp(8, 7, b); pp(9, 7, b);
+        for (let x = 5; x <= 10; x++) pp(x, 9, b);
+      } else if (vdir === 'side') {
+        pp(5, 7, b); pp(6, 8, b); pp(7, 8, b); pp(8, 8, b); pp(9, 8, b); pp(10, 7, b); pp(11, 7, b); pp(6, 9, b); pp(7, 9, b);
+      }
+    }
+    if (look.chain && vdir === 'down') {
+      const c = '#e9ecef';
+      pp(6, 10, c); pp(7, 11, c); pp(8, 11, c); pp(9, 10, c); pp(7, 12, '#adb5bd');
+    }
     drawHead(ctx, look.head, vdir, flip);
   });
 }
@@ -409,11 +446,13 @@ function drawHead(ctx, head, vdir, flip) {
       break;
     }
     case 'vincha': row(3, 12, 3, '#ffd60a'); break;
-    case 'gorra': {
-      const c = '#1d3557';
-      row(4, 11, -1, c); row(3, 12, 0, c); row(3, 12, 1, c); row(3, 12, 2, '#457b9d');
-      if (vdir === 'down') row(3, 12, 3, '#14213d');
-      if (vdir === 'side') row(10, 14, 3, '#14213d');
+    case 'gorra': case 'gorraVerde': case 'gorraGris': case 'gorraLevis': {
+      const col = { gorra: ['#1d3557', '#457b9d', '#14213d'], gorraVerde: ['#2d9c4a', '#3fbf5f', '#1e6b33'], gorraGris: ['#d6d3cc', '#ece9e2', '#a8a49b'], gorraLevis: ['#f1ece0', '#f8f4ea', '#c1121f'] }[head];
+      const [c, l, d] = col;
+      row(4, 11, -1, c); row(3, 12, 0, c); row(3, 12, 1, c); row(3, 12, 2, l);
+      if (head === 'gorraLevis') { row(6, 9, 0, '#c1121f'); row(4, 11, -1, '#1d3557'); }
+      if (vdir === 'down') row(3, 12, 3, d);
+      if (vdir === 'side') row(10, 14, 3, d);
       break;
     }
     case 'lentes':

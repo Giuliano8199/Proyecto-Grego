@@ -402,25 +402,25 @@ const shirt = (a, b = a) => ({ pattern: 'solid', a, b, n: a });
 export const FAMILY = [
   {
     id: 'mama', name: 'Cecilia', role: 'Mamá', age: 49, icon: '👩',
-    look: { jersey: shirt('#e07a5f', '#c9634a'), hair: { style: 'largo', c: '#6b4226', d: '#4a2c17' }, boots: { c: '#6d597a' }, head: 'none' },
+    look: { jersey: { pattern: 'vneck', a: '#f8f9fa', b: '#f8f9fa', n: '#f8f9fa' }, hair: { style: 'coleta', c: '#e9c46a', d: '#c9a227', l: '#f6e7a1' }, shorts: '#8d8d8d', socks: '#f4cdb0', boots: { c: '#e9ecef' }, eye: '#4a7c8c', chain: true, head: 'none' },
     action: 'Charlar con mamá', actionDesc: 'Un rato de charla con Cecilia', tag: '+vida · +espíritu',
     reward: { aura: 80, hp: 25, stats: { esp: 4 } }, gift: 'mate',
     lines: ['¿Comiste algo, Giuli?', '¿Cómo te fue hoy, mi amor?', 'Estoy muy orgullosa de vos.', 'Ordená el cuarto, ¿sí? 😅', 'Abrigate que a la noche refresca.', 'Acordate de tomar agua.', 'Te hice algo rico, está en la heladera.'],
   },
   {
     id: 'papa', name: 'Marco', role: 'Papá', age: 48, icon: '👨',
-    look: { jersey: shirt('#3d5a80', '#293f5c'), hair: { style: 'corto', c: '#3b2a1e', d: '#241a12' }, boots: { c: '#1b1b1b' }, head: 'none' },
+    look: { jersey: { pattern: 'rose', a: '#55575c', b: '#c1121f', n: '#55575c', c: '#e9ecef' }, hair: { style: 'corto', c: '#7a5a3c', d: '#5a412b' }, shorts: '#2b2d33', socks: '#2b2d33', boots: { c: '#e9ecef' }, eye: '#5d8aa8', beard: '#b08a6a', chain: true, head: 'gorraVerde' },
     action: 'Charla con papá', actionDesc: 'Consejos de Marco', tag: '+oro · +disciplina',
     reward: { aura: 80, gold: 20, stats: { dis: 4, car: 2 } },
     lines: ['¿Cómo viene el físico? En febrero arranca todo.', 'Un medio scrum piensa antes que nadie.', 'Los laburos se cobran a tiempo, eh.', 'La constancia le gana al talento.', 'Cuando quieras vamos a ver un partido.', 'Si te comprometés con algo, cumplilo.', 'Bien ahí, Giuli. Seguí así.'],
   },
   {
     id: 'tommy', name: 'Tommy', role: 'Hermano', age: 27, icon: '🤍',
-    look: { jersey: shirt('#2a9d8f', '#21867a'), hair: { style: 'corto', c: '#5c3b24', d: '#3e2818' }, boots: { c: '#1b1b1b' }, head: 'none' },
+    look: { jersey: { pattern: 'print', a: '#f8f9fa', b: '#2f6690', n: '#f8f9fa', c: '#9fb3c8' }, hair: { style: 'corto', c: '#6b4a2e', d: '#4a321e' }, shorts: '#3a3f4b', socks: '#f4cdb0', boots: { c: '#e9ecef' }, eye: '#5fa8d3', beard: '#8a6a4c', head: 'none', big: true },
   },
   {
     id: 'feli', name: 'Feli', role: 'Hermano', age: 11, icon: '🧒', small: true,
-    look: { jersey: shirt('#ffb703', '#e0a000'), hair: { style: 'flequillo', c: '#7a5638', d: '#4e3524' }, boots: { c: '#e63946' }, head: 'none' },
+    look: { jersey: { pattern: 'solid', a: '#e9ecef', b: '#ced4da', n: '#e9ecef' }, hair: { style: 'flequillo', c: '#3b2a1e', d: '#241a12' }, shorts: '#6c757d', socks: '#f4cdb0', boots: { c: '#3a86ff' }, eye: '#4a5a6c', head: 'none' },
     action: 'Jugar con Feli', actionDesc: 'Pelota en el patio con tu hermanito', tag: '+aura · +carisma',
     reward: { aura: 150, stats: { car: 4, esp: 2 } }, gift: 'alfajor',
     lines: ['¡Giuli! ¿Me enseñás a patear a los palos?', 'Te gané a la play, admitilo.', '¿Jugamos un rato en el patio?', 'Cuando sea grande voy a ser medio scrum como vos.', '¿Me llevás al club el sábado?', '¿Me pasás un tackle? Despacito.'],
