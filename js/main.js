@@ -3,9 +3,10 @@
 // =============================================================
 import * as St from './state.js';
 import { S } from './state.js';
-import { crest, ui, render, renderNav, renderTop, setGoTab, modal, closeModal, toast, onGains, onLevelUp, onAchievement, onAuraRank } from './ui.js';
+import { crest, optBtn, ui, render, renderNav, renderTop, setGoTab, modal, closeModal, toast, onGains, onLevelUp, onAchievement, onAuraRank } from './ui.js';
 import { initWorld, startWorld, stopWorld, resizeWorld, bindJoystick, removeMonster, worldSay, teleportHome } from './world.js';
 import { startBattle } from './battle.js';
+import { openHouse } from './family.js';
 import { kicks, tryRun, mash, trivia } from './minigames.js';
 import { initAudio, playMusic, refreshAudio, sfx } from './audio.js';
 import { MONSTERS, DOG_LINES, PLAYER } from './data.js';
@@ -84,82 +85,64 @@ function onDoor(id) {
   const today = dayKey();
   sfx('click');
   const opts = {
-    casa: () => {
-      const rested = S.restDay === today;
-      const petted = S.petDay?.[today];
-      modal(`
-        <h2>🏠 Casa de Giuli</h2>
-        <p>Piti 🌭 y Catalina 🐕 te reciben en la puerta.</p>
-        <div class="opts">
-          <button class="btn big" id="o1" ${rested ? 'disabled' : ''}>😴 Descansar ${rested ? '(mañana de nuevo)' : '(vida al 100%)'}</button>
-          <button class="btn big" id="o2" ${petted ? 'disabled' : ''}>🐾 Jugar con los perros ${petted ? '(ya jugaste hoy)' : '(+100 aura)'}</button>
-          <button class="btn ghost" data-close>Salir</button>
-        </div>`);
-      $('#o1').onclick = () => { S.restDay = today; St.setHp(St.maxHp()); sfx('heal'); closeModal(); toast('Dormiste una siesta. Vida al máximo ❤️'); };
-      $('#o2').onclick = () => {
-        S.petDay = { [today]: true };
-        sfx('bark');
-        St.grant({ aura: 100, stats: { esp: 2 } }, 'Jugaste con Piti y Catalina', 'x', 'pet');
-        closeModal();
-        toast(pick(DOG_LINES.piti) + '<br>' + pick(DOG_LINES.catalina));
-      };
-    },
+    casa: () => openHouse(),
     gym: () => {
+      const done = St.todayCount('gym') >= 1;
       modal(`
         <h2>🏋️ El Gym</h2>
-        <p>Olor a fierro y música a todo volumen.</p>
+        <p class="muted">Olor a fierro y música a todo volumen.</p>
         <div class="opts">
-          <button class="btn big" id="o1">🏋️ Press de banca (1 ⚡)</button>
-          <button class="btn ghost" id="o2">✅ Fui al gym en la vida real</button>
-          <button class="btn ghost" data-close>Salir</button>
-        </div>`);
-      $('#o1').onclick = () => mini((cb) => mash('gym', cb));
-      $('#o2').onclick = () => { closeModal(); const r = St.completeMission('gym'); if (!r.ok) toast(r.msg); };
+          ${optBtn('g1', '🏋️', 'Press de banca', 'Tocá rápido para levantar la barra', '1 ⚡')}
+          ${optBtn('g2', '✅', 'Fui al gym en la vida real', done ? 'Ya lo cargaste hoy 💪' : 'Cargá la misión de hoy', done ? '✓ Hoy' : '+40 XP', done)}
+        </div>
+        <button class="btn ghost wide" data-close>🚪 Salir</button>`);
+      $('#o_g1').onclick = () => mini((cb) => mash('gym', cb));
+      $('#o_g2').onclick = () => { closeModal(); const r = St.completeMission('gym'); if (!r.ok) toast(r.msg); };
     },
     club: () => {
       const se = St.season();
       modal(`
-        <div class="intro-crest">${crest(48)}</div><h2>🏉 Club Universitario</h2>
-        <p>${se.type === 'vacaciones' ? 'Pretemporada: la cancha está libre para practicar.' : 'Temporada en marcha. ¡Todo rojo y blanco, se juega el sábado!'}</p>
+        <div class="intro-crest">${crest(48)}</div><h2 class="center">🏉 Club Universitario</h2>
+        <p class="muted center">${se.type === 'vacaciones' ? 'Pretemporada: la cancha está libre para practicar.' : 'Temporada en marcha. ¡Todo rojo y blanco, se juega el sábado!'}</p>
         <div class="opts">
-          <button class="btn big" id="o1">🦶 Patadas a los palos (1 ⚡)</button>
-          <button class="btn big" id="o2">🏃 Corrida al try (1 ⚡)</button>
-          <button class="btn big" id="o3">🐃 Scrum (1 ⚡)</button>
-          <button class="btn ghost" data-close>Salir</button>
-        </div>`);
-      $('#o1').onclick = () => mini(kicks);
-      $('#o2').onclick = () => mini(tryRun);
-      $('#o3').onclick = () => mini((cb) => mash('scrum', cb));
+          ${optBtn('c1', '🦶', 'Patadas a los palos', 'Apuntá, medí la potencia, ojo con el viento', '1 ⚡')}
+          ${optBtn('c2', '🏃', 'Corrida al try', 'Esquivá defensores hasta el ingoal', '1 ⚡')}
+          ${optBtn('c3', '🐃', 'Scrum', 'Empujá más fuerte que el pack rival', '1 ⚡')}
+        </div>
+        <button class="btn ghost wide" data-close>🚪 Salir</button>`);
+      $('#o_c1').onclick = () => mini(kicks);
+      $('#o_c2').onclick = () => mini(tryRun);
+      $('#o_c3').onclick = () => mini((cb) => mash('scrum', cb));
     },
     facu: () => {
+      const done = St.todayCount('estudiar') >= 3;
       modal(`
         <h2>🏛️ La Facultad</h2>
-        <p>Próxima parada de Giuli. Mientras tanto, se entrena el cerebro.</p>
+        <p class="muted">Próxima parada de Giuli. Mientras tanto, se entrena el cerebro.</p>
         <div class="opts">
-          <button class="btn big" id="o1">🧠 Trivia (1 ⚡)</button>
-          <button class="btn ghost" id="o2">✅ Estudié en la vida real</button>
-          <button class="btn ghost" data-close>Salir</button>
-        </div>`);
-      $('#o1').onclick = () => mini(trivia);
-      $('#o2').onclick = () => { closeModal(); const r = St.completeMission('estudiar'); if (!r.ok) toast(r.msg); };
+          ${optBtn('u1', '🧠', 'Trivia', '5 preguntas de rugby, web y cultura general', '1 ⚡')}
+          ${optBtn('u2', '✅', 'Estudié en la vida real', 'Cargá una sesión de estudio', done ? '✓ Hoy' : '+30 XP', done)}
+        </div>
+        <button class="btn ghost wide" data-close>🚪 Salir</button>`);
+      $('#o_u1').onclick = () => mini(trivia);
+      $('#o_u2').onclick = () => { closeModal(); const r = St.completeMission('estudiar'); if (!r.ok) toast(r.msg); };
     },
     cole: () => {
-      modal(`<h2>🏫 Colegio Fátima</h2><p>🔒 Cerrado por ahora. ¡Te queda un mes, Giuli! Se habilita más adelante.</p><div class="row"><button class="btn good" data-close>Ok</button></div>`);
+      modal(`<h2>🏫 Colegio Fátima</h2><p>🔒 Cerrado por ahora. ¡Te queda un mes, Giuli! Se habilita más adelante.</p><button class="btn good wide" data-close>Ok</button>`);
     },
     kiosco: () => { closeModal(); goTab('shop'); ui.shopTab = 'consumables'; render(); },
     abuelos: () => {
+      const ate = S.daily?.abuelos === today;
       modal(`
         <h2>👵👴 Casa de los abuelos</h2>
-        <p>"¡Giuli! ¿Comiste? Pasá que hay algo rico."</p>
+        <div class="bubble">"¡Giuli! ¿Comiste? Pasá que hay algo rico."</div>
         <div class="opts">
-          <button class="btn big" id="o1">🍝 Comer algo rico (+30 vida)</button>
-          <button class="btn ghost" id="o2">✅ Los visité en la vida real</button>
-          <button class="btn ghost" data-close>Salir</button>
-        </div>`);
-      const ate = S.petDay?.['ab' + today];
-      if (ate) { $('#o1').disabled = true; $('#o1').textContent = '🍝 Ya comiste hoy'; }
-      $('#o1').onclick = () => { S.petDay = { ...S.petDay, ['ab' + today]: true }; St.setHp(S.hp + 30); sfx('heal'); closeModal(); toast('La abuela te sirvió un plato enorme ❤️ +30'); };
-      $('#o2').onclick = () => { closeModal(); const r = St.completeMission('abuelos'); if (!r.ok) toast(r.msg); };
+          ${optBtn('a1', '🍝', 'Comer algo rico', ate ? 'Ya comiste hoy, no entra nada más 😅' : 'La abuela cocina como nadie', ate ? '✓ Hoy' : '+30 ❤️', ate)}
+          ${optBtn('a2', '✅', 'Los visité en la vida real', 'Cargá la misión', '+300 aura')}
+        </div>
+        <button class="btn ghost wide" data-close>🚪 Salir</button>`);
+      $('#o_a1').onclick = () => { S.daily = { ...(S.daily || {}), abuelos: today }; St.setHp(S.hp + 30); sfx('heal'); closeModal(); toast('La abuela te sirvió un plato enorme ❤️ +30'); };
+      $('#o_a2').onclick = () => { closeModal(); const r = St.completeMission('abuelos'); if (!r.ok) toast(r.msg); };
     },
   };
   (opts[id] || (() => {}))();

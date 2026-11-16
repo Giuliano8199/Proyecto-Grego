@@ -27,6 +27,8 @@ export function defaultState() {
     settings: { sound: true, music: true },
     world: null,
     seen: { intro: false },
+    daily: {},
+    fam: { notes: [], lines: [] },
   };
 }
 

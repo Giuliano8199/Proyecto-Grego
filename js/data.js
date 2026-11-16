@@ -8,6 +8,7 @@ export const PLAYER = {
   fullName: 'Giuliano Cicconi',
   position: 'Medio Scrum',
   number: 9,
+  age: 17,
   club: 'Club Universitario',
   clubShort: 'La U',
 };
@@ -113,6 +114,9 @@ export const MISSIONS = [
   m('reencuentro', 'social', '🫂', 'Juntarme con alguien que no veía hace mucho', { xp: 35, gold: 5, aura: 150, stats: { car: 8, esp: 4 } }),
   m('abuelos', 'social', '👵', 'Visitar a los abuelos', { xp: 40, gold: 10, aura: 300, stats: { esp: 8, car: 4 }, energy: 2 }),
   m('familia', 'social', '🏡', 'Tiempo con la familia', { xp: 20, gold: 4, aura: 50, stats: { esp: 5, car: 2 } }),
+  m('mama', 'social', '👩', 'Ayudar o charlar con mamá', { xp: 20, gold: 4, aura: 80, stats: { esp: 4, dis: 2 } }),
+  m('papa', 'social', '👨', 'Charla o plan con papá', { xp: 20, gold: 4, aura: 80, stats: { esp: 3, car: 3 } }),
+  m('feli', 'social', '🧒', 'Jugar o compartir con Feli', { xp: 20, gold: 4, aura: 100, stats: { car: 4, esp: 3 } }),
   m('tercertiempo', 'social', '🍻', 'Tercer tiempo con el equipo', { xp: 20, gold: 0, aura: 100, stats: { car: 8 }, energy: 0, season: 'temporada' }),
 ];
 
@@ -391,3 +395,34 @@ export const DOG_LINES = {
   piti: ['Piti mueve la colita a mil 🌭', 'Piti te mira con ojitos de "¿salimos?"', 'Piti se tira panza arriba. Pedido de mimos.'],
   catalina: ['Catalina salta como loca 🐕', 'Catalina te trae una pelota toda babeada', 'Catalina te apoya la cabeza en la pierna.'],
 };
+
+// ---------------- FAMILIA ----------------
+// look = cómo se ven (podés cambiar colores: pelo c/d/l, ropa a/b)
+const shirt = (a, b = a) => ({ pattern: 'solid', a, b, n: a });
+export const FAMILY = [
+  {
+    id: 'mama', name: 'Cecilia', role: 'Mamá', age: 49, icon: '👩',
+    look: { jersey: shirt('#e07a5f', '#c9634a'), hair: { style: 'largo', c: '#6b4226', d: '#4a2c17' }, boots: { c: '#6d597a' }, head: 'none' },
+    action: 'Charlar con mamá', actionDesc: 'Un rato de charla con Cecilia', tag: '+vida · +espíritu',
+    reward: { aura: 80, hp: 25, stats: { esp: 4 } }, gift: 'mate',
+    lines: ['¿Comiste algo, Giuli?', '¿Cómo te fue hoy, mi amor?', 'Estoy muy orgullosa de vos.', 'Ordená el cuarto, ¿sí? 😅', 'Abrigate que a la noche refresca.', 'Acordate de tomar agua.', 'Te hice algo rico, está en la heladera.'],
+  },
+  {
+    id: 'papa', name: 'Marco', role: 'Papá', age: 48, icon: '👨',
+    look: { jersey: shirt('#3d5a80', '#293f5c'), hair: { style: 'corto', c: '#3b2a1e', d: '#241a12' }, boots: { c: '#1b1b1b' }, head: 'none' },
+    action: 'Charla con papá', actionDesc: 'Consejos de Marco', tag: '+oro · +disciplina',
+    reward: { aura: 80, gold: 20, stats: { dis: 4, car: 2 } },
+    lines: ['¿Cómo viene el físico? En febrero arranca todo.', 'Un medio scrum piensa antes que nadie.', 'Los laburos se cobran a tiempo, eh.', 'La constancia le gana al talento.', 'Cuando quieras vamos a ver un partido.', 'Si te comprometés con algo, cumplilo.', 'Bien ahí, Giuli. Seguí así.'],
+  },
+  {
+    id: 'tommy', name: 'Tommy', role: 'Hermano', age: 27, icon: '🤍',
+    look: { jersey: shirt('#2a9d8f', '#21867a'), hair: { style: 'corto', c: '#5c3b24', d: '#3e2818' }, boots: { c: '#1b1b1b' }, head: 'none' },
+  },
+  {
+    id: 'feli', name: 'Feli', role: 'Hermano', age: 11, icon: '🧒', small: true,
+    look: { jersey: shirt('#ffb703', '#e0a000'), hair: { style: 'flequillo', c: '#7a5638', d: '#4e3524' }, boots: { c: '#e63946' }, head: 'none' },
+    action: 'Jugar con Feli', actionDesc: 'Pelota en el patio con tu hermanito', tag: '+aura · +carisma',
+    reward: { aura: 150, stats: { car: 4, esp: 2 } }, gift: 'alfajor',
+    lines: ['¡Giuli! ¿Me enseñás a patear a los palos?', 'Te gané a la play, admitilo.', '¿Jugamos un rato en el patio?', 'Cuando sea grande voy a ser medio scrum como vos.', '¿Me llevás al club el sábado?', '¿Me pasás un tackle? Despacito.'],
+  },
+];

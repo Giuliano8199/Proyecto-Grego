@@ -92,7 +92,7 @@ function homeHTML() {
     <div class="portrait"><canvas id="portrait" width="200" height="240"></canvas></div>
     <div class="hero-info">
       <div class="name-row"><h1>${PLAYER.name} <small>#${PLAYER.number}</small></h1>${crest(30)}</div>
-      <div class="sub">${PLAYER.position} · ${PLAYER.club} · Nivel ${St.level()}</div>
+      <div class="sub">${PLAYER.position} · ${PLAYER.age} años · ${PLAYER.club} · Nivel ${St.level()}</div>
       <div class="aura-rank" style="--c:${rk.color}">
         <div class="ar-top"><span>🗿 ${esc(rk.name)}</span><b>${fmt(S.aura)}</b></div>
         <div class="bar"><i style="width:${(pctNext * 100).toFixed(1)}%;background:${rk.color}"></i></div>
@@ -484,6 +484,15 @@ export function settingsModal() {
   $('#sreset').onclick = () => {
     if (confirm('¿Seguro? Se borra TODO tu progreso.') && confirm('¿Segurísimo? No se puede deshacer.')) { St.resetSave(); closeModal(); toast('Partida nueva'); }
   };
+}
+
+// Botón de opción elaborado: ícono, título, descripción y etiqueta
+export function optBtn(id, icon, title, desc = '', tag = '', disabled = false, cls = '') {
+  return `<button class="opt ${cls}" id="o_${id}" ${disabled ? 'disabled' : ''}>
+    <span class="o-ic">${icon}</span>
+    <span class="o-tx"><b>${title}</b>${desc ? `<small>${desc}</small>` : ''}</span>
+    ${tag ? `<span class="o-tag">${tag}</span>` : '<span class="o-arrow">›</span>'}
+  </button>`;
 }
 
 // ---------------- ventanas / toasts / efectos ----------------

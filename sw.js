@@ -1,9 +1,9 @@
 // Service worker: permite jugar sin internet
-const CACHE = 'giuli-rpg-v2';
+const CACHE = 'giuli-rpg-v3';
 const FILES = [
   './', './index.html', './css/style.css', './manifest.webmanifest',
   './js/main.js', './js/ui.js', './js/state.js', './js/data.js', './js/util.js',
-  './js/pixel.js', './js/world.js', './js/battle.js', './js/minigames.js', './js/audio.js',
+  './js/pixel.js', './js/world.js', './js/battle.js', './js/minigames.js', './js/audio.js', './js/family.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
 ];
 
